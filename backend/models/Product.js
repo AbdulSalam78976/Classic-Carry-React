@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 const productSchema = new mongoose.Schema({
   id: {
     type: String,
-    required: true,
-    unique: true
+    required: [true, 'Product ID is required'],
+    unique: true,
+    trim: true
   },
   name: {
     type: String,
@@ -17,13 +18,16 @@ const productSchema = new mongoose.Schema({
     min: 0
   },
   category: {
-    type: String,
-    required: [true, 'Product category is required'],
-    enum: ['summer', 'winter', 'male', 'female', 'sports', 'long', 'cardholder']
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: [true, 'Product category is required']
+  },
+  categoryName: {
+    type: String
   },
   mainImage: {
     type: String,
-    required: true
+    required: [true, 'Main product image is required']
   },
   images: [{
     type: String
@@ -39,6 +43,9 @@ const productSchema = new mongoose.Schema({
   colors: [{
     type: String
   }],
+  sizes: [{
+    type: String
+  }],
   features: [{
     type: String
   }],
@@ -48,7 +55,8 @@ const productSchema = new mongoose.Schema({
   },
   stock: {
     type: Number,
-    default: 100,
+    required: [true, 'Stock quantity is required'],
+    default: 0,
     min: 0
   },
   isActive: {
@@ -57,16 +65,62 @@ const productSchema = new mongoose.Schema({
   },
   productType: {
     type: String,
-    enum: ['cap', 'wallet'],
-    required: true
+    default: 'general'
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false
+  },
+  isHot: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
 });
 
+// Auto-populate categoryName before saving
+productSchema.pre('save', async function(next) {
+  if (this.isModified('category')) {
+    try {
+      const Category = mongoose.model('Category');
+      const category = await Category.findById(this.category);
+      if (category) {
+        this.categoryName = category.name;
+      }
+    } catch (error) {
+      console.error('Error populating category name:', error);
+    }
+  }
+  next();
+});
+
+// Auto-populate categoryName before findOneAndUpdate
+productSchema.pre('findOneAndUpdate', async function(next) {
+  const update = this.getUpdate();
+  if (update.category || update.$set?.category) {
+    try {
+      const Category = mongoose.model('Category');
+      const categoryId = update.category || update.$set?.category;
+      const category = await Category.findById(categoryId);
+      if (category) {
+        if (update.$set) {
+          update.$set.categoryName = category.name;
+        } else {
+          update.categoryName = category.name;
+        }
+      }
+    } catch (error) {
+      console.error('Error populating category name in update:', error);
+    }
+  }
+  next();
+});
+
 // Index for faster queries
 productSchema.index({ category: 1, isActive: 1 });
 productSchema.index({ productType: 1 });
+productSchema.index({ isHot: 1, isFeatured: 1 });
 
 const Product = mongoose.model('Product', productSchema);
 

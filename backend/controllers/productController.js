@@ -5,11 +5,18 @@ import Product from '../models/Product.js';
 // @access  Public
 export const getProducts = async (req, res) => {
   try {
-    const { category, productType, search } = req.query;
-    const query = { isActive: true };
+    const { category, productType, search, isFeatured, isHot, showAll } = req.query;
+    const query = {};
+
+    // Only filter by isActive if showAll is not true (for admin panel)
+    if (showAll !== 'true') {
+      query.isActive = true;
+    }
 
     if (category) query.category = category;
     if (productType) query.productType = productType;
+    if (isFeatured === 'true') query.isFeatured = true;
+    if (isHot === 'true') query.isHot = true;
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -17,7 +24,9 @@ export const getProducts = async (req, res) => {
       ];
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    const products = await Product.find(query)
+      .populate('category', 'name slug image')
+      .sort({ isFeatured: -1, createdAt: -1 });
     
     res.json({
       success: true,
@@ -39,8 +48,11 @@ export const getHotProducts = async (req, res) => {
   try {
     const products = await Product.find({
       isActive: true,
-      id: { $regex: /^hot-/ }
-    }).sort({ createdAt: -1 });
+      isHot: true
+    })
+    .populate('category', 'name slug image')
+    .sort({ createdAt: -1 })
+    .limit(12);
 
     res.json({
       success: true,
@@ -55,19 +67,41 @@ export const getHotProducts = async (req, res) => {
   }
 };
 
-// @desc    Get products by category
-// @route   GET /api/products/category/:category
+// @desc    Get products by category slug
+// @route   GET /api/products/category/:slug
 // @access  Public
 export const getProductsByCategory = async (req, res) => {
   try {
-    const products = await Product.find({
-      category: req.params.category,
-      isActive: true
+    const Category = (await import('../models/Category.js')).default;
+    
+    const category = await Category.findOne({ 
+      slug: req.params.slug,
+      isActive: true 
     });
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    const products = await Product.find({
+      category: category._id,
+      isActive: true
+    })
+    .populate('category', 'name slug image')
+    .sort({ isFeatured: -1, createdAt: -1 });
 
     res.json({
       success: true,
       count: products.length,
+      category: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        image: category.image
+      },
       data: products
     });
   } catch (error) {
@@ -83,7 +117,22 @@ export const getProductsByCategory = async (req, res) => {
 // @access  Public
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findOne({ id: req.params.id });
+    let product;
+    
+    // Check if the id is a valid MongoDB ObjectId
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.id);
+    
+    if (isValidObjectId) {
+      // Try to find by MongoDB _id
+      product = await Product.findById(req.params.id)
+        .populate('category', 'name slug image');
+    }
+    
+    // If not found or not a valid ObjectId, try custom id field
+    if (!product) {
+      product = await Product.findOne({ id: req.params.id })
+        .populate('category', 'name slug image');
+    }
 
     if (!product) {
       return res.status(404).json({
@@ -109,6 +158,13 @@ export const getProductById = async (req, res) => {
 // @access  Private/Admin
 export const createProduct = async (req, res) => {
   try {
+    console.log('Creating product with data:', {
+      name: req.body.name,
+      category: req.body.category,
+      hasMainImage: !!req.body.mainImage,
+      imagesCount: req.body.images?.length || 0
+    });
+
     const product = await Product.create(req.body);
 
     res.status(201).json({
@@ -116,6 +172,7 @@ export const createProduct = async (req, res) => {
       data: product
     });
   } catch (error) {
+    console.error('Error creating product:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -128,11 +185,28 @@ export const createProduct = async (req, res) => {
 // @access  Private/Admin
 export const updateProduct = async (req, res) => {
   try {
-    const product = await Product.findOneAndUpdate(
-      { id: req.params.id },
-      req.body,
-      { new: true, runValidators: true }
-    );
+    let product;
+    
+    // Check if the id is a valid MongoDB ObjectId
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.id);
+    
+    if (isValidObjectId) {
+      // Try to update by MongoDB _id
+      product = await Product.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true, runValidators: true }
+      );
+    }
+    
+    // If not found or not a valid ObjectId, try custom id field
+    if (!product) {
+      product = await Product.findOneAndUpdate(
+        { id: req.params.id },
+        req.body,
+        { new: true, runValidators: true }
+      );
+    }
 
     if (!product) {
       return res.status(404).json({
@@ -146,6 +220,7 @@ export const updateProduct = async (req, res) => {
       data: product
     });
   } catch (error) {
+    console.error('Error updating product:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -158,7 +233,20 @@ export const updateProduct = async (req, res) => {
 // @access  Private/Admin
 export const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findOneAndDelete({ id: req.params.id });
+    let product;
+    
+    // Check if the id is a valid MongoDB ObjectId
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.id);
+    
+    if (isValidObjectId) {
+      // Try to delete by MongoDB _id
+      product = await Product.findByIdAndDelete(req.params.id);
+    }
+    
+    // If not found or not a valid ObjectId, try custom id field
+    if (!product) {
+      product = await Product.findOneAndDelete({ id: req.params.id });
+    }
 
     if (!product) {
       return res.status(404).json({

@@ -1,15 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(true); // Auto-open on desktop
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const menuItems = [
     { path: '/', icon: 'fa-dashboard', label: 'Dashboard' },
+    { path: '/categories', icon: 'fa-folder', label: 'Categories' },
     { path: '/products', icon: 'fa-box', label: 'Products' },
     { path: '/orders', icon: 'fa-shopping-cart', label: 'Orders' },
     { path: '/users', icon: 'fa-users', label: 'Users' },
@@ -22,8 +39,20 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 flex">
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`bg-gray-800 border-r border-gray-700 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
+      <aside className={`
+        bg-gray-800 border-r border-gray-700 transition-all duration-300 flex flex-col z-50
+        ${isMobile ? 'fixed inset-y-0 left-0' : 'relative'}
+        ${sidebarOpen ? 'w-64' : isMobile ? '-translate-x-full w-64' : 'w-20'}
+      `}>
         {/* Logo */}
         <div className="p-6 border-b border-gray-700">
           <div className="flex items-center justify-between">
@@ -85,7 +114,21 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <div className="p-8">
+        {/* Mobile Header */}
+        {isMobile && (
+          <div className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between sticky top-0 z-30">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-gray-400 hover:text-white transition"
+            >
+              <i className="fas fa-bars text-xl"></i>
+            </button>
+            <h1 className="text-white font-bold text-lg">Classic Carrry Admin</h1>
+            <div className="w-8"></div>
+          </div>
+        )}
+        
+        <div className="p-4 md:p-8">
           <Outlet />
         </div>
       </main>

@@ -6,6 +6,8 @@ import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import ProductForm from './pages/ProductForm';
+import Categories from './pages/Categories';
+import CategoryForm from './pages/CategoryForm';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import Users from './pages/Users';
@@ -41,6 +43,9 @@ function App() {
               <Route path="products" element={<Products />} />
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
+              <Route path="categories" element={<Categories />} />
+              <Route path="categories/new" element={<CategoryForm />} />
+              <Route path="categories/edit/:id" element={<CategoryForm />} />
               <Route path="orders" element={<Orders />} />
               <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="users" element={<Users />} />

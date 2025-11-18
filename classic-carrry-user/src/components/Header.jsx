@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cartManager } from '../utils/cartManager';
 import { useAuth } from '../contexts/AuthContext';
+import { categoryAPI } from '../services/api';
 
 const Header = () => {
   const [cartCount, setCartCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
@@ -30,7 +34,39 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoryAPI.getFeatured();
+        setCategories(response.data || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    setProfileDropdownOpen(false);
+    navigate('/');
+  };
 
   return (
     <>
@@ -56,16 +92,19 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-6">
               <Link to="/" className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${isActive('/') ? 'text-white' : ''}`}>
                 Home
               </Link>
-              <Link to="/caps" className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${isActive('/caps') ? 'text-white' : ''}`}>
-                Caps
-              </Link>
-              <Link to="/wallets" className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${isActive('/wallets') ? 'text-white' : ''}`}>
-                Wallets
-              </Link>
+              {categories.slice(0, 5).map((category) => (
+                <Link
+                  key={category._id}
+                  to={`/category/${category.slug}`}
+                  className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${location.pathname === `/category/${category.slug}` ? 'text-white' : ''}`}
+                >
+                  {category.name}
+                </Link>
+              ))}
               <Link to="/about" className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${isActive('/about') ? 'text-white' : ''}`}>
                 About
               </Link>
@@ -87,33 +126,65 @@ const Header = () => {
                 </div>
               </Link>
 
-              {/* Auth Buttons - Desktop */}
-              <div className="hidden md:flex items-center space-x-3">
-                {isAuthenticated ? (
-                  <>
-                    <span className="text-gray-300 text-sm">Hi, {user?.name?.split(' ')[0]}</span>
-                    <button
-                      onClick={logout}
-                      className="text-gray-300 hover:text-[#D2C1B6] transition duration-300 text-sm font-medium"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/login"
-                      className="text-gray-300 hover:text-[#D2C1B6] transition duration-300 text-sm font-medium"
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="bg-[#D2C1B6] text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#e2c9b8] transition duration-300"
-                    >
-                      Register
-                    </Link>
-                  </>
+              {/* Profile Dropdown - Desktop */}
+              <div className="hidden md:block relative" ref={profileRef}>
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center space-x-2 text-gray-300 hover:text-[#D2C1B6] transition duration-300"
+                >
+                  <i className="fas fa-user-circle text-2xl"></i>
+                  {isAuthenticated && (
+                    <span className="text-sm font-medium">{user?.name?.split(' ')[0]}</span>
+                  )}
+                  <i className={`fas fa-chevron-down text-xs transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`}></i>
+                </button>
+
+                {/* Dropdown Menu */}
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-2 z-50">
+                    {isAuthenticated ? (
+                      <>
+                        <div className="px-4 py-2 border-b border-gray-700">
+                          <p className="text-white font-medium text-sm">{user?.name}</p>
+                          <p className="text-gray-400 text-xs">{user?.email}</p>
+                        </div>
+                        <Link
+                          to="/checkout"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                        >
+                          <i className="fas fa-shopping-cart mr-2"></i>
+                          My Cart
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                        >
+                          <i className="fas fa-sign-out-alt mr-2"></i>
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/login"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                        >
+                          <i className="fas fa-sign-in-alt mr-2"></i>
+                          Login
+                        </Link>
+                        <Link
+                          to="/register"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                        >
+                          <i className="fas fa-user-plus mr-2"></i>
+                          Register
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -131,19 +202,30 @@ const Header = () => {
                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition duration-300 font-medium">
                   Home
                 </Link>
-                <Link to="/caps" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition duration-300 font-medium">
-                  Caps
-                </Link>
-                <Link to="/wallets" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition duration-300 font-medium">
-                  Wallets
-                </Link>
+                {categories.map((category) => (
+                  <Link
+                    key={category._id}
+                    to={`/category/${category.slug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-gray-300 hover:text-white transition duration-300 font-medium"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition duration-300 font-medium">
                   About
                 </Link>
                 <div className="border-t border-gray-700 pt-3 mt-3">
                   {isAuthenticated ? (
                     <>
-                      <div className="text-gray-300 mb-2">Hi, {user?.name}</div>
+                      <div className="text-gray-300 mb-3 flex items-center">
+                        <i className="fas fa-user-circle text-xl mr-2"></i>
+                        <span>{user?.name}</span>
+                      </div>
+                      <Link to="/checkout" onClick={() => setMobileMenuOpen(false)} className="block text-gray-300 hover:text-white transition duration-300 font-medium mb-2">
+                        <i className="fas fa-shopping-cart mr-2"></i>
+                        My Cart
+                      </Link>
                       <button
                         onClick={() => {
                           logout();
@@ -151,15 +233,18 @@ const Header = () => {
                         }}
                         className="text-gray-300 hover:text-white transition duration-300 font-medium"
                       >
+                        <i className="fas fa-sign-out-alt mr-2"></i>
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
                       <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block text-gray-300 hover:text-white transition duration-300 font-medium mb-2">
+                        <i className="fas fa-sign-in-alt mr-2"></i>
                         Login
                       </Link>
                       <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block bg-[#D2C1B6] text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#e2c9b8] transition duration-300 text-center">
+                        <i className="fas fa-user-plus mr-2"></i>
                         Register
                       </Link>
                     </>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productAPI } from '../services/api';
+import { categoryAPI } from '../services/categoryAPI';
 import { useNotification } from '../contexts/NotificationContext';
 
 const ProductForm = () => {
@@ -8,46 +9,63 @@ const ProductForm = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
     price: '',
-    category: 'male',
-    productType: 'cap',
+    stock: '',
+    category: '',
     mainImage: '',
-    images: '',
+    images: [],
     description: '',
-    tag: '',
     colors: '',
+    sizes: '',
     features: '',
-    stock: 100,
+    isHot: false,
     isActive: true
   });
 
   useEffect(() => {
+    fetchCategories();
     if (id) {
       fetchProduct();
     }
   }, [id]);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await categoryAPI.getAll({ showAll: 'true' });
+      setCategories(response.data || []);
+    } catch (error) {
+      showNotification('Failed to fetch categories', 'error');
+    }
+  };
+
   const fetchProduct = async () => {
     try {
       const response = await productAPI.getById(id);
       const product = response.data;
+      
+      // Handle category - it might be populated as an object or just an ID
+      const categoryId = typeof product.category === 'object' 
+        ? product.category._id 
+        : product.category;
+      
       setFormData({
-        id: product.id,
+        id: product.id || '',
         name: product.name,
         price: product.price,
-        category: product.category,
-        productType: product.productType,
-        mainImage: product.mainImage,
-        images: product.images?.join(', ') || '',
-        description: product.description || '',
-        tag: product.tag || '',
-        colors: product.colors?.join(', ') || '',
-        features: product.features?.join(', ') || '',
         stock: product.stock,
-        isActive: product.isActive
+        category: categoryId,
+        mainImage: product.mainImage,
+        images: product.images || [],
+        description: product.description || '',
+        colors: product.colors?.join(', ') || '',
+        sizes: product.sizes?.join(', ') || '',
+        features: product.features?.join(', ') || '',
+        isHot: product.isHot || false,
+        isActive: product.isActive !== false
       });
     } catch (error) {
       showNotification('Failed to fetch product', 'error');
@@ -56,10 +74,114 @@ const ProductForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    
+    if (name === 'category') {
+      console.log('Category changed to:', newValue);
+    }
+    
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: newValue
     });
+  };
+
+  const handleMainImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification('Image size must be less than 5MB', 'error');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Upload image to server
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', file);
+
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('http://localhost:5000/api/upload/product', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: uploadFormData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Use the server URL instead of base64
+          setFormData(prev => ({ ...prev, mainImage: `http://localhost:5000${data.data.url}` }));
+          showNotification('Image uploaded successfully', 'success');
+        } else {
+          showNotification(data.message || 'Failed to upload image', 'error');
+        }
+      } catch (error) {
+        showNotification('Failed to upload image', 'error');
+        console.error('Upload error:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleAdditionalImagesChange = async (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Validate file sizes
+    const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      showNotification('Some images are larger than 5MB', 'error');
+      return;
+    }
+
+    if (files.length === 0) return;
+
+    setLoading(true);
+
+    try {
+      // Upload images to server
+      const uploadFormData = new FormData();
+      files.forEach(file => {
+        uploadFormData.append('images', file);
+      });
+
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('http://localhost:5000/api/upload/products', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: uploadFormData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Add server URLs to images array
+        const imageUrls = data.data.urls.map(url => `http://localhost:5000${url}`);
+        setFormData(prev => ({ ...prev, images: [...prev.images, ...imageUrls] }));
+        showNotification(`${files.length} image(s) uploaded successfully`, 'success');
+      } else {
+        showNotification(data.message || 'Failed to upload images', 'error');
+      }
+    } catch (error) {
+      showNotification('Failed to upload images', 'error');
+      console.error('Upload error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -68,13 +190,22 @@ const ProductForm = () => {
 
     try {
       const productData = {
-        ...formData,
+        id: formData.id,
+        name: formData.name,
         price: Number(formData.price),
         stock: Number(formData.stock),
-        images: formData.images.split(',').map(img => img.trim()).filter(Boolean),
+        category: formData.category,
+        mainImage: formData.mainImage,
+        images: formData.images,
+        description: formData.description,
         colors: formData.colors.split(',').map(c => c.trim()).filter(Boolean),
-        features: formData.features.split(',').map(f => f.trim()).filter(Boolean)
+        sizes: formData.sizes.split(',').map(s => s.trim()).filter(Boolean),
+        features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
+        isHot: formData.isHot,
+        isActive: formData.isActive
       };
+
+      console.log('Submitting product with category:', productData.category);
 
       if (id) {
         await productAPI.update(id, productData);
@@ -86,6 +217,7 @@ const ProductForm = () => {
       navigate('/products');
     } catch (error) {
       showNotification(error.message || 'Failed to save product', 'error');
+      console.error('Error saving product:', error);
     } finally {
       setLoading(false);
     }
@@ -110,57 +242,96 @@ const ProductForm = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Product ID *
-            </label>
-            <input
-              type="text"
-              name="id"
-              required
-              disabled={!!id}
-              value={formData.id}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition disabled:opacity-50"
-              placeholder="e.g., cap-summer-1"
-            />
+      <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-4xl">
+        <div className="space-y-6">
+          {/* Product ID and Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Product ID *
+              </label>
+              <input
+                type="text"
+                name="id"
+                required
+                disabled={!!id}
+                value={formData.id}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="e.g., cap-summer-001"
+              />
+              <p className="text-xs text-gray-500 mt-1">Unique identifier for the product</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Product Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
+                placeholder="e.g., Classic Baseball Cap"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Product Name *
-            </label>
-            <input
-              type="text"
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="e.g., Classic Baseball Cap"
-            />
+          {/* Category and Price Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Category *
+              </label>
+              <select
+                name="category"
+                required
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {categories.length === 0 && (
+                <p className="text-xs text-yellow-500 mt-1">
+                  No categories available. Please create a category first.
+                </p>
+              )}
+              {formData.category && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Selected: {categories.find(c => c._id === formData.category)?.name || formData.category}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Price (Rs) *
+              </label>
+              <input
+                type="number"
+                name="price"
+                required
+                value={formData.price}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
+                placeholder="2999"
+                min="0"
+              />
+            </div>
           </div>
 
+          {/* Quantity */}
           <div>
             <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Price (Rs) *
-            </label>
-            <input
-              type="number"
-              name="price"
-              required
-              value={formData.price}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="2999"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Stock *
+              Quantity (Stock) *
             </label>
             <input
               type="number"
@@ -170,78 +341,45 @@ const ProductForm = () => {
               onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
               placeholder="100"
+              min="0"
             />
           </div>
 
+          {/* Colors and Sizes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Colors (comma-separated)
+              </label>
+              <input
+                type="text"
+                name="colors"
+                value={formData.colors}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
+                placeholder="Black, Navy Blue, White"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Sizes (comma-separated)
+              </label>
+              <input
+                type="text"
+                name="sizes"
+                value={formData.sizes}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
+                placeholder="S, M, L, XL"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
           <div>
             <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Product Type *
-            </label>
-            <select
-              name="productType"
-              required
-              value={formData.productType}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-            >
-              <option value="cap">Cap</option>
-              <option value="wallet">Wallet</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Category *
-            </label>
-            <select
-              name="category"
-              required
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="summer">Summer</option>
-              <option value="winter">Winter</option>
-              <option value="sports">Sports</option>
-              <option value="long">Long</option>
-              <option value="cardholder">Card Holder</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Main Image URL *
-            </label>
-            <input
-              type="text"
-              name="mainImage"
-              required
-              value={formData.mainImage}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="/uploads/products/image.png"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Additional Images (comma-separated)
-            </label>
-            <input
-              type="text"
-              name="images"
-              value={formData.images}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="/uploads/products/img1.png, /uploads/products/img2.png"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Description
+              Product Description
             </label>
             <textarea
               name="description"
@@ -249,41 +387,14 @@ const ProductForm = () => {
               onChange={handleChange}
               rows="4"
               className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition resize-none"
-              placeholder="Product description..."
+              placeholder="Detailed product description..."
             />
           </div>
 
+          {/* Features/Specifications */}
           <div>
             <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Tag
-            </label>
-            <input
-              type="text"
-              name="tag"
-              value={formData.tag}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="🔥 Best Seller"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Colors (comma-separated)
-            </label>
-            <input
-              type="text"
-              name="colors"
-              value={formData.colors}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="Black, Navy Blue, White"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Features (comma-separated)
+              Features / Specifications (comma-separated)
             </label>
             <textarea
               name="features"
@@ -291,25 +402,106 @@ const ProductForm = () => {
               onChange={handleChange}
               rows="3"
               className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition resize-none"
-              placeholder="Premium Quality, Durable, Comfortable"
+              placeholder="Premium Quality, Durable Material, Water Resistant"
             />
           </div>
 
-          <div className="md:col-span-2">
-            <label className="flex items-center gap-2 cursor-pointer">
+          {/* Main Image */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-300 mb-2">
+              Main Product Image *
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleMainImageChange}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#D2C1B6] file:text-gray-900 file:font-semibold hover:file:bg-[#e2c9b8] file:cursor-pointer"
+            />
+            {formData.mainImage && (
+              <div className="mt-4">
+                <p className="text-xs text-gray-400 mb-2">Preview:</p>
+                <img 
+                  src={formData.mainImage} 
+                  alt="Main product" 
+                  className="w-48 h-48 object-cover rounded-lg border-2 border-gray-600"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Additional Images */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-300 mb-2">
+              Additional Images
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleAdditionalImagesChange}
+              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#D2C1B6] file:text-gray-900 file:font-semibold hover:file:bg-[#e2c9b8] file:cursor-pointer"
+            />
+            {formData.images.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs text-gray-400 mb-2">Additional Images ({formData.images.length}):</p>
+                <div className="grid grid-cols-4 gap-3">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="relative group">
+                      <img 
+                        src={img} 
+                        alt={`Product ${index + 1}`} 
+                        className="w-full h-24 object-cover rounded-lg border-2 border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Toggles */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border-2 border-gray-600">
               <input
                 type="checkbox"
+                id="isHot"
+                name="isHot"
+                checked={formData.isHot}
+                onChange={handleChange}
+                className="w-6 h-6 rounded border-gray-600 text-[#D2C1B6] focus:ring-[#D2C1B6] cursor-pointer"
+              />
+              <label htmlFor="isHot" className="cursor-pointer flex-1">
+                <span className="text-gray-100 font-semibold block">Hot Selling Product</span>
+                <span className="text-gray-400 text-sm">Mark this product as a hot seller</span>
+              </label>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border-2 border-gray-600">
+              <input
+                type="checkbox"
+                id="isActive"
                 name="isActive"
                 checked={formData.isActive}
                 onChange={handleChange}
-                className="w-5 h-5 rounded border-gray-600 text-[#D2C1B6] focus:ring-[#D2C1B6]"
+                className="w-6 h-6 rounded border-gray-600 text-[#D2C1B6] focus:ring-[#D2C1B6] cursor-pointer"
               />
-              <span className="text-gray-300 font-medium">Product is Active</span>
-            </label>
+              <label htmlFor="isActive" className="cursor-pointer flex-1">
+                <span className="text-gray-100 font-semibold block">Product is Live</span>
+                <span className="text-gray-400 text-sm">Make this product visible to customers</span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-4 mt-8">
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-8 pt-6 border-t border-gray-700">
           <button
             type="submit"
             disabled={loading}

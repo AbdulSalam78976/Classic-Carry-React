@@ -38,12 +38,32 @@ export const productAPI = {
     return apiCall(`/products/${id}`);
   },
   
-  getByCategory: async (category) => {
-    return apiCall(`/products/category/${category}`);
+  getByCategory: async (slug) => {
+    return apiCall(`/products/category/${slug}`);
   },
   
   getCategories: async (productType) => {
     return apiCall(`/products/categories/${productType}`);
+  },
+};
+
+// Category APIs
+export const categoryAPI = {
+  getAll: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiCall(`/categories${query ? `?${query}` : ''}`);
+  },
+  
+  getFeatured: async () => {
+    return apiCall('/categories?isFeatured=true');
+  },
+  
+  getFeaturedWithProducts: async () => {
+    return apiCall('/categories/featured/with-products');
+  },
+  
+  getBySlug: async (slug) => {
+    return apiCall(`/categories/slug/${slug}`);
   },
 };
 
@@ -93,4 +113,4 @@ export const userAPI = {
   },
 };
 
-export default { productAPI, orderAPI, userAPI };
+export default { productAPI, orderAPI, userAPI, categoryAPI };

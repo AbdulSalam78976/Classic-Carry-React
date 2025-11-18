@@ -10,6 +10,7 @@ import Caps from './pages/Caps';
 import Wallets from './pages/Wallets';
 import About from './pages/About';
 import ProductDetail from './pages/ProductDetail';
+import CategoryPage from './pages/CategoryPage';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import Login from './pages/Login';
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/caps" element={<Caps />} />
                 <Route path="/wallets" element={<Wallets />} />
+                <Route path="/category/:slug" element={<CategoryPage />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/login" element={<Login />} />

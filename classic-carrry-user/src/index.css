@@ -48,6 +48,16 @@ input[type="number"] {
   animation: sparkle 3s ease-in-out infinite;
 }
 
+/* Hide Scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes sparkle {
   0%, 100% { transform: scale(1) rotate(0deg); }
   25% { transform: scale(1.15) rotate(8deg); }
