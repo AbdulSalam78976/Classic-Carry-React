@@ -4,6 +4,8 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import Login from './pages/Login';
 import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/Dashboard';
+import HeroImages from './pages/HeroImages';
+import HeroImageForm from './pages/HeroImageForm';
 import Products from './pages/Products';
 import ProductForm from './pages/ProductForm';
 import Categories from './pages/Categories';
@@ -40,6 +42,9 @@ function App() {
               </ProtectedRoute>
             }>
               <Route index element={<Dashboard />} />
+              <Route path="hero-images" element={<HeroImages />} />
+              <Route path="hero-images/new" element={<HeroImageForm />} />
+              <Route path="hero-images/edit/:id" element={<HeroImageForm />} />
               <Route path="products" element={<Products />} />
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />

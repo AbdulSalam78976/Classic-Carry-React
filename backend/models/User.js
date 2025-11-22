@@ -26,13 +26,23 @@ const userSchema = new mongoose.Schema({
     default: 'user'
   },
   phone: {
-    type: String
+    type: String,
+    trim: true
   },
   address: {
     street: String,
     city: String,
+    state: String,
     province: String,
-    postalCode: String
+    postalCode: String,
+    country: {
+      type: String,
+      default: 'Pakistan'
+    }
+  },
+  avatar: {
+    type: String,
+    default: ''
   },
   isActive: {
     type: Boolean,

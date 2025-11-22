@@ -39,13 +39,14 @@ class CartManager {
   addToCart(product) {
     try {
       const cart = this.getCart();
-      const existingItem = cart.find(item => item.id === product.id);
+      const productId = product.id || product._id;
+      const existingItem = cart.find(item => item.id === productId);
 
       if (existingItem) {
         existingItem.qty = (existingItem.qty || 1) + 1;
       } else {
         cart.push({
-          id: product.id,
+          id: productId,
           name: product.name,
           price: product.price,
           img: product.mainImage || product.img,

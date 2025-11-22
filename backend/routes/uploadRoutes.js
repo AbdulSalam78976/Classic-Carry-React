@@ -14,7 +14,8 @@ const router = express.Router();
 // Ensure upload directories exist
 const uploadDirs = [
   path.join(__dirname, '../uploads/products'),
-  path.join(__dirname, '../uploads/categories')
+  path.join(__dirname, '../uploads/categories'),
+  path.join(__dirname, '../uploads/hero')
 ];
 
 uploadDirs.forEach(dir => {
@@ -136,12 +137,68 @@ router.post('/category', protect, admin, (req, res, next) => {
   });
 });
 
+// Upload hero image
+router.post('/hero', protect, admin, (req, res, next) => {
+  const heroUpload = multer({
+    storage: multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../uploads/hero'));
+      },
+      filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'hero-' + uniqueSuffix + path.extname(file.originalname));
+      }
+    }),
+    limits: {
+      fileSize: 10 * 1024 * 1024 // 10MB limit for hero images
+    },
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = /jpeg|jpg|png|gif|webp/;
+      const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+      const mimetype = allowedTypes.test(file.mimetype);
+
+      if (mimetype && extname) {
+        return cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed!'));
+      }
+    }
+  }).single('image');
+
+  heroUpload(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    const imageUrl = `/uploads/hero/${req.file.filename}`;
+    
+    res.json({
+      success: true,
+      message: 'Hero image uploaded successfully',
+      data: {
+        url: imageUrl,
+        filename: req.file.filename
+      }
+    });
+  });
+});
+
 // Delete image
 router.delete('/:type/:filename', protect, admin, (req, res) => {
   try {
     const { type, filename } = req.params;
     
-    if (!['products', 'categories'].includes(type)) {
+    if (!['products', 'categories', 'hero'].includes(type)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid image type'

@@ -1,15 +1,51 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slides = [
-    '/assets/images/hero/1.webp',
-    '/assets/images/hero/2.webp',
-    '/assets/images/hero/3.webp'
-  ];
+  const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchHeroImages();
+  }, []);
+
+  const fetchHeroImages = async () => {
+    try {
+      const response = await fetch(`${API_URL}/hero-images`);
+      const data = await response.json();
+      console.log('Hero images response:', data);
+      const images = data.data || [];
+      console.log('Hero images:', images);
+      
+      if (images.length > 0) {
+        setSlides(images.map(img => img.image));
+      } else {
+        // Fallback to default images if no hero images in database
+        console.log('No hero images found, using fallback');
+        setSlides([
+          '/assets/images/hero/1.webp',
+          '/assets/images/hero/2.webp',
+          '/assets/images/hero/3.webp'
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching hero images:', error);
+      // Fallback to default images if API fails
+      setSlides([
+        '/assets/images/hero/1.webp',
+        '/assets/images/hero/2.webp',
+        '/assets/images/hero/3.webp'
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (slides.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
@@ -17,8 +53,18 @@ const HeroCarousel = () => {
     return () => clearInterval(interval);
   }, [slides.length]);
 
+  if (loading || slides.length === 0) {
+    return (
+      <section className="hero-carousel bg-gray-900 py-12 md:py-20 lg:py-32 relative overflow-hidden">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-gray-400">Loading...</div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="hero-carousel text-white py-12 md:py-20 lg:py-32 relative overflow-hidden">
+    <section className="hero-carousel py-12 md:py-20 lg:py-32 relative overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -27,32 +73,6 @@ const HeroCarousel = () => {
         />
       ))}
       <div className="hero-overlay"></div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center fade-in appear">
-          <h1 className="font-display hero-title font-bold mb-4 md:mb-6 leading-tight tracking-tight text-4xl md:text-6xl" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-            Elevate Your Style
-          </h1>
-          <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-10 text-gray-100 opacity-95 max-w-2xl mx-auto leading-relaxed">
-            Premium caps and wallets crafted for the modern individual who values quality, style, and functionality.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-            <Link
-              to="/caps"
-              className="bg-[#D2C1B6] text-gray-900 px-6 py-3 md:px-8 md:py-4 rounded-lg md:rounded-xl font-semibold hover:bg-[#e2c9b8] transition duration-300 transform hover:scale-105 shadow-2xl"
-            >
-              Shop Caps
-            </Link>
-            <Link
-              to="/wallets"
-              className="border-2 border-[#D2C1B6] text-white px-6 py-3 md:px-8 md:py-4 rounded-lg md:rounded-xl font-semibold hover:bg-[#D2C1B6] hover:text-gray-900 transition duration-300 transform hover:scale-105"
-              style={{ backdropFilter: 'blur(10px)', background: 'rgba(30, 41, 59, 0.6)' }}
-            >
-              Shop Wallets
-            </Link>
-          </div>
-        </div>
-      </div>
 
       <div className="absolute bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 z-10 flex gap-2 md:gap-3">
         {slides.map((_, index) => (

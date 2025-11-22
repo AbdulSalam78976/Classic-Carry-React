@@ -26,6 +26,7 @@ const AdminLayout = () => {
 
   const menuItems = [
     { path: '/', icon: 'fa-dashboard', label: 'Dashboard' },
+    { path: '/hero-images', icon: 'fa-images', label: 'Hero Images' },
     { path: '/categories', icon: 'fa-folder', label: 'Categories' },
     { path: '/products', icon: 'fa-box', label: 'Products' },
     { path: '/orders', icon: 'fa-shopping-cart', label: 'Orders' },

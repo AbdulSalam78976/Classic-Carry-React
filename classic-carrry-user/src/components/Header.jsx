@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cartManager } from '../utils/cartManager';
 import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import { categoryAPI } from '../services/api';
 
 const Header = () => {
@@ -14,6 +15,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
+  const { wishlistCount } = useWishlist();
 
   useEffect(() => {
     const updateCart = () => {
@@ -27,18 +29,19 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const scrollY = window.scrollY;
+      setScrolled(scrollY > 20);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Fetch categories
+  // Fetch all active categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await categoryAPI.getFeatured();
+        const response = await categoryAPI.getAll();
         setCategories(response.data || []);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -70,97 +73,133 @@ const Header = () => {
 
   return (
     <>
-      {/* Free Delivery Banner */}
-      <div className="bg-green-600 text-white py-1 text-center text-sm font-medium">
-        <div className="container mx-auto px-4">
-          <i className="fas fa-truck mr-2"></i>
-          <span className="font-semibold">FREE DELIVERY</span> on orders above Rs 4,000!
-          <i className="fas fa-gift ml-2"></i>
-        </div>
-      </div>
-
       {/* Header */}
-      <header className={`bg-gray-900 border-b border-gray-700 sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'header-scrolled' : ''}`}>
-        <nav className="container mx-auto px-4 py-4">
+      <header className={`fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 ${
+        scrolled ? 'shadow-md py-2' : 'py-4'
+      }`}>
+        <nav className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <Link to="/" className="font-display text-xl md:text-2xl font-bold text-white hover:text-[#D2C1B6] transition duration-300 flex items-center">
-                <span>Classic Carrry</span>
-                <span className="ml-2">✨</span>
-              </Link>
-            </div>
+            <Link 
+              to="/" 
+              className="text-xl md:text-2xl font-bold text-gray-900 hover:text-[#8B7355] transition-colors"
+            >
+              Classic Carrry
+            </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              <Link to="/" className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${isActive('/') ? 'text-white' : ''}`}>
+            <div className="hidden lg:flex items-center space-x-6">
+              <Link 
+                to="/" 
+                className={`px-4 py-2 font-medium ${
+                  isActive('/') 
+                    ? 'text-[#8B7355]' 
+                    : 'text-gray-600 hover:text-[#8B7355]'
+                }`}
+              >
                 Home
               </Link>
-              {categories.slice(0, 5).map((category) => (
+              
+              {categories.map((category) => (
                 <Link
                   key={category._id}
                   to={`/category/${category.slug}`}
-                  className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${location.pathname === `/category/${category.slug}` ? 'text-white' : ''}`}
+                  className={`px-4 py-2 font-medium ${
+                    location.pathname === `/category/${category.slug}` 
+                      ? 'text-[#8B7355]' 
+                      : 'text-gray-600 hover:text-[#8B7355]'
+                  }`}
                 >
                   {category.name}
                 </Link>
               ))}
-              <Link to="/about" className={`nav-link text-gray-300 hover:text-white transition duration-300 font-medium ${isActive('/about') ? 'text-white' : ''}`}>
+              
+              <Link 
+                to="/about" 
+                className={`px-4 py-2 font-medium ${
+                  isActive('/about') 
+                    ? 'text-[#8B7355]' 
+                    : 'text-gray-600 hover:text-[#8B7355]'
+                }`}
+              >
                 About
               </Link>
             </div>
 
-            {/* Cart, Auth & Mobile Menu */}
+            {/* Right Side Icons */}
             <div className="flex items-center space-x-4">
+              {/* Wishlist Icon */}
+              <Link 
+                to="/wishlist" 
+                className="relative p-2 hover:text-red-500 transition-colors"
+              >
+                <i className="far fa-heart text-xl text-gray-600"></i>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Cart Icon */}
-              <Link to="/checkout" className="relative text-[#D2C1B6] hover:text-white transition duration-300 cart-icon">
-                <div className="relative">
-                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M27 25.15 25.28 10.5a2.93 2.93 0 0 0-3-2.5h-1.35c0-.19 0-.38-.06-.57-.22-1.54-.41-2.87-1.59-4a4.51 4.51 0 0 0-6.56 0c-1.18 1.14-1.37 2.47-1.59 4 0 .19 0 .38-.06.57H9.69a2.93 2.93 0 0 0-3 2.5L5 25.15a4.13 4.13 0 0 0 1 3.26A4.87 4.87 0 0 0 9.72 30h12.56a4.87 4.87 0 0 0 3.64-1.59A4.13 4.13 0 0 0 27 25.15zM13.11 7.71c.22-1.52.34-2.21 1-2.85A2.78 2.78 0 0 1 16 4a2.78 2.78 0 0 1 1.89.86c.66.64.78 1.33 1 2.85V8h-5.8c.01-.1.01-.19.02-.29zm11.31 19.37a2.83 2.83 0 0 1-2.14.92H9.72a2.83 2.83 0 0 1-2.14-.92 2.14 2.14 0 0 1-.58-1.7l1.7-14.65a.94.94 0 0 1 1-.73H11c0 .38.05.76.1 1.14a1 1 0 1 0 2-.28c0-.29 0-.57-.06-.86H19c0 .29 0 .57-.06.86a1 1 0 0 0 .8 1.14h.14a1 1 0 0 0 1-.86c.05-.38.08-.76.1-1.14h1.34a.94.94 0 0 1 1 .73L25 25.38a2.14 2.14 0 0 1-.58 1.7z" fill="#d2c1b6" />
-                  </svg>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-[#D2C1B6] text-gray-900 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
-                      {cartCount}
-                    </span>
-                  )}
-                </div>
+              <Link 
+                to="/checkout" 
+                className="relative p-2 hover:text-[#8B7355] transition-colors"
+              >
+                <i className="fas fa-shopping-bag text-xl text-gray-600"></i>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#8B7355] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
 
               {/* Profile Dropdown - Desktop */}
-              <div className="hidden md:block relative" ref={profileRef}>
+              <div className="hidden lg:block relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center space-x-2 text-gray-300 hover:text-[#D2C1B6] transition duration-300"
+                  className="flex items-center space-x-2 p-2 hover:text-[#8B7355] transition-colors"
                 >
-                  <i className="fas fa-user-circle text-2xl"></i>
+                  <i className="fas fa-user-circle text-xl text-gray-600"></i>
                   {isAuthenticated && (
-                    <span className="text-sm font-medium">{user?.name?.split(' ')[0]}</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      {user?.name?.split(' ')[0]}
+                    </span>
                   )}
-                  <i className={`fas fa-chevron-down text-xs transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`}></i>
+                  <i className={`fas fa-chevron-down text-xs ${profileDropdownOpen ? 'rotate-180' : ''} transition-transform`}></i>
                 </button>
 
                 {/* Dropdown Menu */}
                 {profileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     {isAuthenticated ? (
                       <>
-                        <div className="px-4 py-2 border-b border-gray-700">
-                          <p className="text-white font-medium text-sm">{user?.name}</p>
-                          <p className="text-gray-400 text-xs">{user?.email}</p>
+                        <div className="px-4 py-2 border-b border-gray-200">
+                          <p className="text-gray-900 font-semibold text-sm">{user?.name}</p>
+                          <p className="text-gray-500 text-xs mt-1">{user?.email}</p>
                         </div>
+                        <Link
+                          to="/profile"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#8B7355]"
+                        >
+                          <i className="fas fa-user mr-3 text-gray-400"></i>
+                          My Profile
+                        </Link>
                         <Link
                           to="/checkout"
                           onClick={() => setProfileDropdownOpen(false)}
-                          className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#8B7355]"
                         >
-                          <i className="fas fa-shopping-cart mr-2"></i>
-                          My Cart
+                          <i className="fas fa-shopping-cart mr-3 text-gray-400"></i>
+                          My Cart ({cartCount})
                         </Link>
+                        <div className="border-t border-gray-200 my-2"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                          className="w-full text-left flex items-center px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600"
                         >
-                          <i className="fas fa-sign-out-alt mr-2"></i>
+                          <i className="fas fa-sign-out-alt mr-3 text-gray-400"></i>
                           Logout
                         </button>
                       </>
@@ -169,17 +208,17 @@ const Header = () => {
                         <Link
                           to="/login"
                           onClick={() => setProfileDropdownOpen(false)}
-                          className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#8B7355]"
                         >
-                          <i className="fas fa-sign-in-alt mr-2"></i>
+                          <i className="fas fa-sign-in-alt mr-3 text-gray-400"></i>
                           Login
                         </Link>
                         <Link
                           to="/register"
                           onClick={() => setProfileDropdownOpen(false)}
-                          className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
+                          className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#8B7355]"
                         >
-                          <i className="fas fa-user-plus mr-2"></i>
+                          <i className="fas fa-user-plus mr-3 text-gray-400"></i>
                           Register
                         </Link>
                       </>
@@ -189,17 +228,28 @@ const Header = () => {
               </div>
 
               {/* Mobile Menu Button */}
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-gray-300 hover:text-white transition duration-300">
-                <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+                className="lg:hidden p-2 hover:bg-gray-50"
+              >
+                <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl text-gray-600`}></i>
               </button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-gray-700">
-              <div className="flex flex-col space-y-3 pt-4">
-                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition duration-300 font-medium">
+            <div className="lg:hidden pb-4 border-t border-gray-200 pt-4 mt-4">
+              <div className="flex flex-col space-y-1">
+                <Link 
+                  to="/" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-2 font-medium ${
+                    isActive('/') 
+                      ? 'text-[#8B7355]' 
+                      : 'text-gray-600 hover:text-[#8B7355]'
+                  }`}
+                >
                   Home
                 </Link>
                 {categories.map((category) => (
@@ -207,43 +257,76 @@ const Header = () => {
                     key={category._id}
                     to={`/category/${category.slug}`}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-gray-300 hover:text-white transition duration-300 font-medium"
+                    className={`px-4 py-2 font-medium ${
+                      location.pathname === `/category/${category.slug}` 
+                        ? 'text-[#8B7355]' 
+                        : 'text-gray-600 hover:text-[#8B7355]'
+                    }`}
                   >
                     {category.name}
                   </Link>
                 ))}
-                <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white transition duration-300 font-medium">
+                <Link 
+                  to="/about" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-2 font-medium ${
+                    isActive('/about') 
+                      ? 'text-[#8B7355]' 
+                      : 'text-gray-600 hover:text-[#8B7355]'
+                  }`}
+                >
                   About
                 </Link>
-                <div className="border-t border-gray-700 pt-3 mt-3">
+                
+                <div className="border-t border-gray-200 pt-4 mt-2">
                   {isAuthenticated ? (
                     <>
-                      <div className="text-gray-300 mb-3 flex items-center">
-                        <i className="fas fa-user-circle text-xl mr-2"></i>
-                        <span>{user?.name}</span>
+                      <div className="px-4 py-2 text-gray-700">
+                        <p className="font-semibold">{user?.name}</p>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
                       </div>
-                      <Link to="/checkout" onClick={() => setMobileMenuOpen(false)} className="block text-gray-300 hover:text-white transition duration-300 font-medium mb-2">
-                        <i className="fas fa-shopping-cart mr-2"></i>
-                        My Cart
+                      <Link 
+                        to="/profile" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center px-4 py-2 text-gray-600 hover:text-[#8B7355]"
+                      >
+                        <i className="fas fa-user mr-3"></i>
+                        My Profile
+                      </Link>
+                      <Link 
+                        to="/checkout" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center px-4 py-2 text-gray-600 hover:text-[#8B7355]"
+                      >
+                        <i className="fas fa-shopping-cart mr-3"></i>
+                        My Cart ({cartCount})
                       </Link>
                       <button
                         onClick={() => {
-                          logout();
+                          handleLogout();
                           setMobileMenuOpen(false);
                         }}
-                        className="text-gray-300 hover:text-white transition duration-300 font-medium"
+                        className="w-full text-left flex items-center px-4 py-2 text-gray-600 hover:text-red-600"
                       >
-                        <i className="fas fa-sign-out-alt mr-2"></i>
+                        <i className="fas fa-sign-out-alt mr-3"></i>
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block text-gray-300 hover:text-white transition duration-300 font-medium mb-2">
-                        <i className="fas fa-sign-in-alt mr-2"></i>
+                      <Link 
+                        to="/login" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center px-4 py-2 text-gray-600 hover:text-[#8B7355] mb-2"
+                      >
+                        <i className="fas fa-sign-in-alt mr-3"></i>
                         Login
                       </Link>
-                      <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block bg-[#D2C1B6] text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#e2c9b8] transition duration-300 text-center">
+                      <Link 
+                        to="/register" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-center bg-[#8B7355] text-white px-4 py-2 rounded font-semibold hover:bg-[#A68A6F]"
+                      >
                         <i className="fas fa-user-plus mr-2"></i>
                         Register
                       </Link>
@@ -255,6 +338,9 @@ const Header = () => {
           )}
         </nav>
       </header>
+      
+      {/* Spacer for fixed header */}
+      <div className={scrolled ? 'h-16' : 'h-20'}></div>
     </>
   );
 };

@@ -1,16 +1,28 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { cartManager } from '../utils/cartManager';
-import { formatPrice } from '../utils/helpers';
 import { useNotification } from '../contexts/NotificationContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import { getImageUrl, handleImageError } from '../utils/imageHelper';
 import { useState } from 'react';
 
 const ProductCard = ({ product }) => {
-  const navigate = useNavigate();
+  // Safety check
+  if (!product) {
+    console.error('ProductCard received null/undefined product');
+    return <div className="p-4 border border-red-300">Error: No product data</div>;
+  }
+  
+  if (!product.name || !product.price) {
+    console.error('ProductCard received invalid product:', product);
+    return <div className="p-4 border border-red-300">Error: Invalid product data</div>;
+  }
+  
   const { showNotification } = useNotification();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddToCart = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsAdding(true);
     cartManager.addToCart(product);
@@ -23,54 +35,82 @@ const ProductCard = ({ product }) => {
     }, 2000);
   };
 
-  const handleCardClick = () => {
-    navigate(`/product/${product.id}`);
+  const handleWishlistToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const result = toggleWishlist(product);
+    if (result.success) {
+      showNotification(result.message, 'success');
+    }
   };
 
   return (
-    <div 
-      className="card group cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl fade-in flex flex-col h-full"
-      onClick={handleCardClick}
-    >
-      {/* Image Container - Fixed Height */}
-      <div className="relative overflow-hidden rounded-2xl mb-4 flex-shrink-0">
-        <div className="w-full h-72 bg-gray-800">
-          <img 
-            src={getImageUrl(product.mainImage || product.img)} 
-            alt={product.name}
-            className="foto w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            onError={handleImageError}
-          />
-        </div>
-        {product.tag && (
-          <span className="absolute top-2 left-2 bg-[#D2C1B6] text-gray-900 px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10">
-            {product.tag}
+    <div className="relative group">
+      {/* Sale/Hot Badge */}
+      {(product.isHot || product.tag) && (
+        <div className="absolute top-2 left-2 z-10">
+          <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+            {product.isHot ? 'HOT' : product.tag || 'SALE'}
           </span>
-        )}
-      </div>
-
-      {/* Product Info - Flexible Height */}
-      <div className="text-center flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#D2C1B6] transition-colors duration-300 line-clamp-2 min-h-[3.5rem]">
-          {product.name}
-        </h3>
-        
-        <div className="text-xl font-bold text-[#D2C1B6] mb-3 price-text">
-          Rs {formatPrice(product.price)}
         </div>
-
-        {/* Add to Cart Button - Always at bottom */}
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          className={`add-to-cart w-full px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md mt-auto ${
-            isAdding 
-              ? 'bg-green-600 text-white' 
-              : 'bg-[#D2C1B6] text-gray-900 hover:bg-[#e2c9b8]'
-          }`}
-        >
-          {isAdding ? '✓ Added to Cart' : 'Add to Cart'}
-        </button>
+      )}
+      
+      {/* Wishlist Heart */}
+      <button
+        onClick={handleWishlistToggle}
+        className="absolute top-2 right-2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+      >
+        <i className={`${isInWishlist(product._id || product.id) ? 'fas' : 'far'} fa-heart text-red-500`}></i>
+      </button>
+      
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+        <Link to={`/product/${product.id || product._id}`}>
+          <div className="aspect-square overflow-hidden bg-gray-100">
+            <img
+              src={getImageUrl(product.mainImage || product.img)}
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              onError={handleImageError}
+            />
+          </div>
+        </Link>
+        
+        <div className="p-3">
+          {product.categoryName && (
+            <p className="text-gray-500 text-xs mb-1">{product.categoryName}</p>
+          )}
+          <Link to={`/product/${product.id || product._id}`}>
+            <h3 className="text-gray-900 text-sm font-medium mb-2 line-clamp-2 hover:text-[#8B7355] transition">
+              {product.name}
+            </h3>
+          </Link>
+          
+          {/* Rating */}
+          <div className="flex items-center gap-1 mb-2">
+            {[...Array(5)].map((_, i) => (
+              <i key={i} className="fas fa-star text-yellow-500 text-xs"></i>
+            ))}
+            <span className="text-gray-500 text-xs ml-1">(5)</span>
+          </div>
+          
+          {/* Price */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[#8B7355] font-bold">
+              Rs {product.price.toLocaleString()}
+            </span>
+          </div>
+          
+          {/* Add to Cart Button */}
+          <button 
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className={`w-full bg-[#8B7355] text-white py-2 rounded font-medium hover:bg-[#6B5744] transition text-sm ${
+              isAdding ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isAdding ? 'Adding...' : 'Add to cart'}
+          </button>
+        </div>
       </div>
     </div>
   );

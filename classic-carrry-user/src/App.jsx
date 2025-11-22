@@ -2,17 +2,18 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useEffect } from 'react';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
-import Caps from './pages/Caps';
-import Wallets from './pages/Wallets';
 import About from './pages/About';
 import ProductDetail from './pages/ProductDetail';
 import CategoryPage from './pages/CategoryPage';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
+import Wishlist from './pages/Wishlist';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
@@ -52,32 +53,52 @@ function FadeInObserver() {
   return null;
 }
 
+// Layout component to conditionally render header and footer
+function AppLayout() {
+  const location = useLocation();
+  
+  // Define routes where header and footer should be hidden
+  const hideHeaderFooterRoutes = [
+    '/login',
+    '/register'
+    // Add other routes here if needed (e.g., '/forgot-password')
+  ];
+  
+  const shouldHideHeaderFooter = hideHeaderFooterRoutes.includes(location.pathname);
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {!shouldHideHeaderFooter && <Header />}
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {!shouldHideHeaderFooter && <Footer />}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
       <AuthProvider>
         <NotificationProvider>
-          <ScrollToTop />
-          <FadeInObserver />
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/caps" element={<Caps />} />
-                <Route path="/wallets" element={<Wallets />} />
-                <Route path="/category/:slug" element={<CategoryPage />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order-success" element={<OrderSuccess />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
+          <WishlistProvider>
+            <ScrollToTop />
+            <FadeInObserver />
+            <AppLayout />
+          </WishlistProvider>
         </NotificationProvider>
       </AuthProvider>
     </Router>
