@@ -250,7 +250,7 @@ const CategoryPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <i className="fas fa-spinner fa-spin text-4xl text-[#8B7355] mb-4"></i>
-          <p className="text-gray-600">Loading category...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );

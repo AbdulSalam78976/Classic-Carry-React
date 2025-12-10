@@ -62,7 +62,6 @@ const Home = () => {
 
           {/* Text */}
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Loading Products</h3>
-          <p className="text-gray-600 mb-4">Please wait while we prepare everything for you...</p>
           
           {/* Loading dots */}
           <div className="flex justify-center gap-2">
