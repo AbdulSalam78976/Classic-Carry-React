@@ -4,6 +4,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { getImageUrl, handleImageError } from '../utils/imageHelper';
 import { useState } from 'react';
+import StarRating from './StarRating';
 
 const ProductCard = ({ product }) => {
   // Safety check
@@ -45,11 +46,11 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="relative group">
+    <div className="product-card relative group h-full border-10">
       {/* Sale/Hot Badge */}
       {(product.isHot || product.tag) && (
-        <div className="absolute top-2 left-2 z-10">
-          <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+        <div className="absolute top-3 left-3 z-10">
+          <span className="product-badge">
             {product.isHot ? 'HOT' : product.tag || 'SALE'}
           </span>
         </div>
@@ -58,49 +59,87 @@ const ProductCard = ({ product }) => {
       {/* Wishlist Heart */}
       <button
         onClick={handleWishlistToggle}
-        className="absolute top-2 right-2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="wishlist-btn absolute top-3 right-3 z-10"
       >
         <i className={`${isInWishlist(product._id || product.id) ? 'fas' : 'far'} fa-heart text-red-500`}></i>
       </button>
       
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300">
-        <Link to={`/product/${product.id || product._id}`}>
-          <div className="aspect-square overflow-hidden bg-gray-100">
+      {/* Product Card with Fixed Height */}
+      <div className="product-border bg-white overflow-hidden h-full flex flex-col">
+        {/* Image Section - Fixed Height */}
+        <Link to={`/product/${product.id || product._id}`} className="block">
+          <div className="aspect-square overflow-hidden bg-gray-100 relative">
             <img
               src={getImageUrl(product.mainImage || product.img)}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              className="product-image group-hover:scale-105 transition-transform duration-500"
               onError={handleImageError}
             />
+            {/* Overlay on hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
           </div>
         </Link>
         
-        <div className="p-3">
+        {/* Content Section - Flexible Height */}
+        <div className="p-4 flex flex-col flex-grow">
+          {/* Category */}
           {product.categoryName && (
-            <p className="text-gray-500 text-xs mb-1">{product.categoryName}</p>
+            <p className="text-gray-500 text-xs mb-2 uppercase tracking-wide font-medium">
+              {product.categoryName}
+            </p>
           )}
-          <Link to={`/product/${product.id || product._id}`}>
-            <h3 className="text-gray-900 text-sm font-medium mb-2 line-clamp-2 hover:text-[#8B7355] transition">
-              {product.name}
+          
+          {/* Product Name - Fixed Height */}
+          <Link to={`/product/${product.id || product._id}`} className="block mb-3">
+            <h3 className="text-gray-900 text-sm font-semibold leading-tight hover:text-[#8B7355] transition-colors duration-200 h-10 overflow-hidden">
+              <span className="line-clamp-2">
+                {product.name}
+              </span>
             </h3>
           </Link>
           
-          {/* Price */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[#8B7355] font-bold">
+          {/* Rating Section - Fixed Height */}
+          <div className="mb-3 h-5 flex items-center">
+            {product.totalReviews > 0 ? (
+              <div className="flex items-center gap-2">
+                <StarRating 
+                  rating={product.averageRating || 0} 
+                  size="sm" 
+                  readonly 
+                />
+                <span className="text-xs text-gray-500 font-medium">
+                  ({product.totalReviews})
+                </span>
+              </div>
+            ) : (
+              <div className="text-xs text-gray-400">No reviews yet</div>
+            )}
+          </div>
+          
+          {/* Price Section */}
+          <div className="mb-4 flex-grow flex items-end">
+            <span className="product-price">
               Rs {product.price.toLocaleString()}
             </span>
           </div>
           
-          {/* Add to Cart Button */}
+          {/* Add to Cart Button - Fixed at Bottom */}
           <button 
             onClick={handleAddToCart}
             disabled={isAdding}
-            className={`w-full bg-[#8B7355] text-white py-2 rounded font-medium hover:bg-[#6B5744] transition text-sm ${
-              isAdding ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`product-btn ${isAdding ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {isAdding ? 'Adding...' : 'Add to cart'}
+            {isAdding ? (
+              <span className="flex items-center justify-center gap-2">
+                <i className="fas fa-spinner fa-spin"></i>
+                Adding...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <i className="fas fa-shopping-cart"></i>
+                Add to Cart
+              </span>
+            )}
           </button>
         </div>
       </div>

@@ -35,6 +35,8 @@ const AdminLayout = () => {
     { path: '/products', icon: 'fa-box', label: 'Products' },
     { path: '/orders', icon: 'fa-shopping-cart', label: 'Orders' },
     { path: '/users', icon: 'fa-users', label: 'Users' },
+    { path: '/reviews', icon: 'fa-star', label: 'Reviews' },
+    { path: '/analytics', icon: 'fa-chart-bar', label: 'Analytics' },
     { path: '/coupons', icon: 'fa-tag', label: 'Coupons' },
     { path: '/contacts', icon: 'fa-envelope', label: 'Contacts' },
     { path: '/settings', icon: 'fa-cog', label: 'Settings' },

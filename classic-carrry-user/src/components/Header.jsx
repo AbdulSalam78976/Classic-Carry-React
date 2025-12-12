@@ -81,17 +81,17 @@ const Header = () => {
   };
 
   const getCategoryNavLinkClass = ({ isActive }) => {
-    return `px-4 py-2 font-medium ${
+    return `category-nav-item px-3 py-2 text-sm font-medium transition-colors rounded-md ${
       isActive 
-        ? 'text-[#8B7355] underline underline-offset-4 decoration-2 decoration-[#8B7355]' 
-        : 'text-gray-600 hover:text-[#8B7355]'
+        ? 'text-[#8B7355] bg-[#8B7355]/10 active' 
+        : 'text-gray-600 hover:text-[#8B7355] hover:bg-gray-50'
     }`;
   };
 
   const getMobileNavLinkClass = ({ isActive }) => {
-    return `px-4 py-2 font-medium ${
+    return `mobile-category-item block px-4 py-3 text-sm font-medium transition-all ${
       isActive 
-        ? 'text-[#8B7355]' 
+        ? 'text-[#8B7355] active' 
         : 'text-gray-600 hover:text-[#8B7355]'
     }`;
   };
@@ -115,7 +115,7 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-4">
+            <div className="hidden lg:flex items-center space-x-2">
               <NavLink 
                 to="/" 
                 className={getNavLinkClass}
@@ -124,7 +124,8 @@ const Header = () => {
                 Home
               </NavLink>
               
-              {categories.map((category) => (
+              {/* Show first 4 categories directly */}
+              {categories.slice(0, 4).map((category) => (
                 <NavLink
                   key={category._id}
                   to={`/category/${category.slug}`}
@@ -133,6 +134,40 @@ const Header = () => {
                   {category.name}
                 </NavLink>
               ))}
+              
+              {/* More dropdown for additional categories */}
+              {categories.length > 4 && (
+                <div className="relative group">
+                  <button className="text-gray-700 hover:text-[#8B7355] px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1 rounded-md hover:bg-gray-50">
+                    More
+                    <i className="fas fa-chevron-down text-xs group-hover:rotate-180 transition-transform duration-200"></i>
+                  </button>
+                  <div className="header-dropdown absolute top-full left-0 mt-2 w-52 rounded-lg shadow-xl border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 transform translate-y-2 group-hover:translate-y-0">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 mb-1">
+                      More Categories
+                    </div>
+                    {categories.slice(4).map((category) => (
+                      <NavLink
+                        key={category._id}
+                        to={`/category/${category.slug}`}
+                        className={({ isActive }) => 
+                          `block px-4 py-2 text-sm transition-colors ${
+                            isActive 
+                              ? 'text-[#8B7355] bg-[#8B7355]/10 border-r-2 border-[#8B7355]' 
+                              : 'text-gray-700 hover:bg-gray-50 hover:text-[#8B7355]'
+                          }`
+                        }
+                      >
+                        <i className="fas fa-tag text-xs mr-2 opacity-60"></i>
+                        {category.name}
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Separator */}
+              <div className="h-6 w-px bg-gray-300 mx-2"></div>
               
               <NavLink 
                 to="/about" 
@@ -213,6 +248,18 @@ const Header = () => {
                         >
                           <i className="fas fa-user mr-3 text-gray-400"></i>
                           My Profile
+                        </NavLink>
+                        <NavLink
+                          to="/reviews"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className={({ isActive }) => 
+                            `flex items-center px-4 py-2 hover:bg-gray-50 hover:text-[#8B7355] ${
+                              isActive ? 'text-[#8B7355] bg-gray-50' : 'text-gray-700'
+                            }`
+                          }
+                        >
+                          <i className="fas fa-star mr-3 text-gray-400"></i>
+                          My Reviews
                         </NavLink>
                         <NavLink
                           to="/checkout"

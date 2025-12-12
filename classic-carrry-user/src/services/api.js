@@ -113,4 +113,27 @@ export const userAPI = {
   },
 };
 
-export default { productAPI, orderAPI, userAPI, categoryAPI };
+// Upload APIs
+export const uploadAPI = {
+  uploadReviewImages: async (formData) => {
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(`${API_URL}/upload/review`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData, // Don't set Content-Type for FormData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Upload failed');
+    }
+
+    return data;
+  },
+};
+
+export default { productAPI, orderAPI, userAPI, categoryAPI, uploadAPI };

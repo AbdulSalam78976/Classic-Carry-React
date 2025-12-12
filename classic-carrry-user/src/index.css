@@ -798,3 +798,329 @@ input[type="number"] {
 .animate-progress-ring {
   animation: progress-ring 2s ease-in-out infinite;
 }
+
+/* Header Dropdown Styles */
+.header-dropdown {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.header-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid rgba(255, 255, 255, 0.95);
+}
+
+/* Smooth dropdown animation */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: all 200ms ease-out;
+}
+
+/* Header category navigation improvements */
+.category-nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.category-nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.category-nav-item:hover::after,
+.category-nav-item.active::after {
+  width: 100%;
+}
+
+/* Mobile menu improvements */
+@media (max-width: 1023px) {
+  .mobile-category-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-category-item:hover,
+  .mobile-category-item.active {
+    border-left-color: var(--primary);
+    background-color: rgba(139, 115, 85, 0.05);
+  }
+}/* Pr
+oduct Card Utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Product Grid Consistency */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (max-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* Product Card Hover Effects */
+.product-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Consistent button styling */
+.btn-primary {
+  background: linear-gradient(135deg, #8B7355 0%, #A68A6F 100%);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #6B5744 0%, #8B7355 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}/* Enhanced 
+Product Card Styling */
+.product-card {
+  min-height: 420px; /* Ensures consistent height */
+  max-width: 320px;  /* Prevents cards from getting too wide */
+  margin: 0 auto;    /* Centers cards in their grid cells */
+}
+
+/* Improved border styling */
+.product-border {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-border:hover {
+  border-color: rgba(139, 115, 85, 0.4);
+  box-shadow: 0 10px 25px -5px rgba(139, 115, 85, 0.1), 
+              0 8px 10px -6px rgba(139, 115, 85, 0.1);
+}
+
+/* Consistent image aspect ratios */
+.product-image {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* Price styling consistency */
+.product-price {
+  color: #8B7355;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.2;
+}
+
+/* Button consistency */
+.product-btn {
+  background: linear-gradient(135deg, #8B7355 0%, #A68A6F 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  padding: 10px 16px;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.product-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6B5744 0%, #8B7355 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+}
+
+.product-btn:active {
+  transform: translateY(0);
+}
+
+.product-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Badge styling */
+.product-badge {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+}
+
+/* Wishlist button styling */
+.wishlist-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.wishlist-btn:hover {
+  background: white;
+  border-color: rgba(139, 115, 85, 0.3);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}/* Hori
+zontal Categories Scroll */
+.categories-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: #8B7355 #f1f5f9;
+  scroll-behavior: smooth;
+}
+
+.categories-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.categories-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.categories-scroll-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #8B7355 0%, #A68A6F 100%);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.categories-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #6B5744 0%, #8B7355 100%);
+}
+
+/* Category Card Styling */
+.category-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Smooth scroll for touch devices */
+@media (max-width: 768px) {
+  .categories-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  
+  .category-card {
+    scroll-snap-align: start;
+  }
+}
+
+/* Custom scrollbar for mobile */
+@media (max-width: 640px) {
+  .categories-scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+/* Fade effect for scroll edges */
+.categories-scroll-container::before,
+.categories-scroll-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.categories-scroll-container::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(248, 250, 252, 1), rgba(248, 250, 252, 0));
+}
+
+.categories-scroll-container::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(248, 250, 252, 1), rgba(248, 250, 252, 0));
+}
+
+/* Hide fade effect on mobile */
+@media (max-width: 768px) {
+  .categories-scroll-container::before,
+  .categories-scroll-container::after {
+    display: none;
+  }
+}
+
+/* Category hover animations */
+.category-card .fas {
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .fas {
+  transform: translateX(2px);
+}
+
+/* Responsive category cards */
+@media (max-width: 640px) {
+  .category-card > div {
+    width: 160px !important;
+    height: 200px !important;
+    padding: 1rem !important;
+  }
+  
+  .category-card h3 {
+    font-size: 1rem !important;
+  }
+  
+  .category-card p {
+    font-size: 0.75rem !important;
+  }
+}

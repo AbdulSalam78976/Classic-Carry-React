@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productAPI } from '../services/api';
+import { reviewAPI } from '../services/reviewAPI';
 import { cartManager } from '../utils/cartManager';
 import { formatPrice, getColorValue } from '../utils/helpers';
 import { useNotification } from '../contexts/NotificationContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getImageUrl, handleImageError } from '../utils/imageHelper';
+import StarRating from '../components/StarRating';
+import ReviewCard from '../components/ReviewCard';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -22,6 +25,8 @@ const ProductDetail = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [imageLoading, setImageLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -32,6 +37,9 @@ const ProductDetail = () => {
         setMainImage(foundProduct.mainImage || foundProduct.img);
         setSelectedColor(foundProduct.colors?.[0] || '');
         setSelectedSize(foundProduct.sizes?.[0] || '');
+        
+        // Fetch reviews
+        fetchReviews(foundProduct._id);
         
         // Fetch related products from the same category
         if (foundProduct.category) {
@@ -73,6 +81,18 @@ const ProductDetail = () => {
 
     fetchProduct();
   }, [id, navigate, showNotification]);
+
+  const fetchReviews = async (productId) => {
+    try {
+      setReviewsLoading(true);
+      const response = await reviewAPI.getProductReviews(productId, { limit: 5 });
+      setReviews(response.data.reviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -220,6 +240,21 @@ const ProductDetail = () => {
                   {product.name}
                 </h1>
                 
+                {/* Rating */}
+                {product.totalReviews > 0 && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={product.averageRating || 0} size="md" readonly />
+                      <span className="text-lg font-semibold text-gray-900">
+                        {(product.averageRating || 0).toFixed(1)}
+                      </span>
+                    </div>
+                    <span className="text-gray-600">
+                      ({product.totalReviews} review{product.totalReviews !== 1 ? 's' : ''})
+                    </span>
+                  </div>
+                )}
+
                 {/* Price & Stock */}
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -380,26 +415,163 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Product Features */}
+          {/* Tabs Section */}
           <div className="mt-8 bg-white rounded-2xl shadow-xl overflow-hidden">
-            {/* Header */}
-            <div className="border-b border-gray-200 px-6 py-4">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i className="fas fa-star text-[#8B7355]"></i>
-                Product Features
-              </h2>
+            {/* Tab Headers */}
+            <div className="border-b border-gray-200">
+              <div className="flex">
+                <button
+                  onClick={() => setActiveTab('description')}
+                  className={`px-6 py-4 font-semibold transition-colors ${
+                    activeTab === 'description'
+                      ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <i className="fas fa-info-circle mr-2"></i>
+                  Description
+                </button>
+                <button
+                  onClick={() => setActiveTab('features')}
+                  className={`px-6 py-4 font-semibold transition-colors ${
+                    activeTab === 'features'
+                      ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <i className="fas fa-star mr-2"></i>
+                  Features
+                </button>
+                <button
+                  onClick={() => setActiveTab('reviews')}
+                  className={`px-6 py-4 font-semibold transition-colors ${
+                    activeTab === 'reviews'
+                      ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <i className="fas fa-comment-alt mr-2"></i>
+                  Reviews ({product.totalReviews || 0})
+                </button>
+              </div>
             </div>
 
-            {/* Features Content */}
+            {/* Tab Content */}
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(product.features || ['Premium Quality', 'Durable Material', 'Expert Craftsmanship']).map((feature, index) => (
-                  <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <i className="fas fa-check-circle text-[#8B7355] text-lg"></i>
-                    <span className="text-gray-700 font-medium">{feature}</span>
-                  </div>
-                ))}
-              </div>
+              {activeTab === 'description' && (
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    {product.description || `Premium quality product from ${settings.appearance.siteName}. This product is carefully crafted with attention to detail and quality materials to ensure customer satisfaction.`}
+                  </p>
+                  
+                  {product.specifications && Object.keys(product.specifications).length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Specifications</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Object.entries(product.specifications).map(([key, value]) => (
+                          <div key={key} className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                            <span className="font-medium text-gray-700">{key}:</span>
+                            <span className="text-gray-900">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'features' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(product.features || ['Premium Quality', 'Durable Material', 'Expert Craftsmanship']).map((feature, index) => (
+                    <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                      <i className="fas fa-check-circle text-[#8B7355] text-lg"></i>
+                      <span className="text-gray-700 font-medium">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'reviews' && (
+                <div>
+                  {product.totalReviews > 0 ? (
+                    <div className="space-y-6">
+                      {/* Rating Summary */}
+                      <div className="bg-gray-50 rounded-xl p-6">
+                        <div className="flex items-center gap-6">
+                          <div className="text-center">
+                            <div className="text-4xl font-bold text-[#8B7355] mb-2">
+                              {(product.averageRating || 0).toFixed(1)}
+                            </div>
+                            <StarRating rating={product.averageRating || 0} size="lg" readonly />
+                            <p className="text-sm text-gray-600 mt-2">
+                              Based on {product.totalReviews} review{product.totalReviews !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                          
+                          {product.ratingDistribution && (
+                            <div className="flex-1 space-y-2">
+                              {[5, 4, 3, 2, 1].map((rating) => (
+                                <div key={rating} className="flex items-center gap-3">
+                                  <span className="text-sm font-medium w-8">{rating}★</span>
+                                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div
+                                      className="bg-[#8B7355] h-2 rounded-full"
+                                      style={{
+                                        width: `${product.totalReviews > 0 
+                                          ? (product.ratingDistribution[rating] / product.totalReviews) * 100 
+                                          : 0}%`
+                                      }}
+                                    />
+                                  </div>
+                                  <span className="text-sm text-gray-600 w-8">
+                                    {product.ratingDistribution[rating] || 0}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Reviews List */}
+                      {reviewsLoading ? (
+                        <div className="text-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B7355] mx-auto"></div>
+                          <p className="mt-2 text-gray-600">Loading reviews...</p>
+                        </div>
+                      ) : reviews.length > 0 ? (
+                        <div className="space-y-4">
+                          {reviews.map((review) => (
+                            <ReviewCard key={review._id} review={review} />
+                          ))}
+                          
+                          {product.totalReviews > reviews.length && (
+                            <div className="text-center pt-4">
+                              <button
+                                onClick={() => fetchReviews(product._id)}
+                                className="text-[#8B7355] hover:text-[#6B5744] font-semibold"
+                              >
+                                Load More Reviews
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <i className="fas fa-comment-alt text-4xl text-gray-300 mb-4"></i>
+                          <p className="text-gray-600">No reviews available yet.</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <i className="fas fa-comment-alt text-6xl text-gray-300 mb-4"></i>
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No Reviews Yet</h3>
+                      <p className="text-gray-600">Be the first to review this product!</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

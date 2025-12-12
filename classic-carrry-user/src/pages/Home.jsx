@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import HeroCarousel from '../components/HeroCarousel';
 import ProductCard from '../components/ProductCard';
 import { categoryAPI, productAPI } from '../services/api';
-import { useWishlist } from '../contexts/WishlistContext';
-import { useNotification } from '../contexts/NotificationContext';
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
@@ -12,8 +10,7 @@ const Home = () => {
   const [newArrivals, setNewArrivals] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const { toggleWishlist, isInWishlist } = useWishlist();
-  const { showNotification } = useNotification();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +76,7 @@ const Home = () => {
       {/* Hero Carousel */}
       <HeroCarousel />
 
-{/* Shop by Categories - Enhanced Design */}
+{/* Shop by Categories - Horizontal Scroll */}
 <section className="py-16 md:py-20 bg-gradient-to-b from-white to-gray-50">
   <div className="container mx-auto px-4">
     {/* Section Header */}
@@ -91,71 +88,63 @@ const Home = () => {
       <div className="w-24 h-1 bg-gradient-to-r from-[#8B7355] to-[#A68A6F] mx-auto mt-4 rounded-full"></div>
     </div>
 
-    {/* Categories Grid */}
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
-      {categories.map((category) => (
-        <Link
-          key={category._id}
-          to={`/category/${category.slug}`}
-          className="group h-full"
-        >
-          <div className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
-            {/* Decorative corner */}
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#8B7355]/10 to-transparent rounded-bl-full"></div>
-            
-            {/* Image Container */}
-            <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-4">
-              {/* Animated ring */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8B7355]/20 to-[#A68A6F]/20 group-hover:scale-110 transition-transform duration-300"></div>
-              
-              {/* Image */}
-              <div className="absolute inset-2 rounded-full overflow-hidden bg-white shadow-inner">
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/200?text=' + category.name;
-                  }}
-                />
+    {/* Horizontal Scrollable Categories */}
+    <div className="relative">
+      {/* Scroll Container */}
+      <div className="categories-scroll-container overflow-x-auto pb-4">
+        <div className="flex gap-6 md:gap-8 min-w-max px-4">
+          {categories.map((category) => (
+            <Link
+              key={category._id}
+              to={`/category/${category.slug}`}
+              className="group flex-shrink-0"
+            >
+              <div className="relative bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 w-64 md:w-72 h-80 md:h-96 flex flex-col">
+                {/* Decorative corner */}
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#8B7355]/10 to-transparent rounded-bl-full"></div>
+                
+                {/* Image Container */}
+                <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-4">
+                  {/* Animated ring */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8B7355]/20 to-[#A68A6F]/20 group-hover:scale-110 transition-transform duration-300"></div>
+                  
+                  {/* Image */}
+                  <div className="absolute inset-2 rounded-full overflow-hidden bg-white shadow-inner">
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/200?text=' + category.name;
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Hover overlay */}
+                  <div className="absolute inset-2 rounded-full bg-[#8B7355]/0 group-hover:bg-[#8B7355]/10 transition-colors duration-300"></div>
+                </div>
+
+                {/* Category Name */}
+                <h3 className="text-center text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#8B7355] transition-colors duration-300 mb-2 min-h-[2rem]">
+                  {category.name}
+                </h3>
+
+                {/* Description */}
+                <div className="flex-grow mb-3">
+                  {category.description && (
+                    <p className="text-center text-sm text-gray-500 line-clamp-2">
+                      {category.description}
+                    </p>
+                  )}
+                </div>
               </div>
-              
-              {/* Hover overlay */}
-              <div className="absolute inset-2 rounded-full bg-[#8B7355]/0 group-hover:bg-[#8B7355]/10 transition-colors duration-300"></div>
-            </div>
-
-            {/* Category Name */}
-            <h3 className="text-center text-lg md:text-xl font-bold text-gray-900 group-hover:text-[#8B7355] transition-colors duration-300 mb-2 min-h-[2rem]">
-              {category.name}
-            </h3>
-
-            {/* Description */}
-            <div className="flex-grow mb-3">
-              {category.description && (
-                <p className="text-center text-sm text-gray-500 line-clamp-2">
-                  {category.description}
-                </p>
-              )}
-            </div>
-
-          
-          </div>
-        </Link>
-      ))}
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
 
-    {/* View All Link */}
-    {categories.length > 3 && (
-      <div className="text-center mt-10">
-        <Link
-          to="/products"
-          className="inline-flex items-center gap-2 px-8 py-3 bg-white border-2 border-[#8B7355] text-[#8B7355] rounded-full font-semibold hover:bg-[#8B7355] hover:text-white transition-all duration-300 shadow-md hover:shadow-lg"
-        >
-          <span>View All Products</span>
-          <i className="fas fa-arrow-right"></i>
-        </Link>
-      </div>
-    )}
+   
   </div>
 </section>
 
@@ -171,7 +160,7 @@ const Home = () => {
           </div>
 
           {hotProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="product-grid">
               {hotProducts.slice(0, 10).map((product) => (
                 <ProductCard key={product._id || product.id} product={product} />
               ))}
@@ -198,7 +187,7 @@ const Home = () => {
           </div>
 
           {newArrivals.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="product-grid">
               {newArrivals.map((product) => (
                 <ProductCard key={product._id || product.id} product={product} />
               ))}

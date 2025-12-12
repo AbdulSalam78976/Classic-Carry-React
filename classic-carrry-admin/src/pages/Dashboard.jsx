@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI, orderAPI, userAPI } from '../services/api';
+import { analyticsAPI } from '../services/analyticsAPI';
 import { useSettings } from '../contexts/SettingsContext';
+import AnalyticsTest from '../components/AnalyticsTest';
 
 const Dashboard = () => {
   const { settings } = useSettings();
@@ -190,6 +192,61 @@ const Dashboard = () => {
           </div>
           <div className="w-16 h-16 bg-[#D2C1B6]/20 rounded-lg flex items-center justify-center">
             <i className="fas fa-dollar-sign text-[#D2C1B6] text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics Preview */}
+      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-white">Analytics Overview</h2>
+            <p className="text-gray-400">Quick insights into your business performance</p>
+          </div>
+          <Link
+            to="/analytics"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <i className="fas fa-chart-bar"></i>
+            View Full Analytics
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center">
+                <i className="fas fa-trending-up text-green-400"></i>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Today's Revenue</p>
+                <p className="text-xl font-bold text-white">Rs {stats.todayRevenue.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                <i className="fas fa-calendar-week text-blue-400"></i>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">This Week</p>
+                <p className="text-xl font-bold text-white">Rs {stats.weekRevenue.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-700 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center">
+                <i className="fas fa-calendar-alt text-purple-400"></i>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">This Month</p>
+                <p className="text-xl font-bold text-white">Rs {stats.monthRevenue.toLocaleString()}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -402,6 +459,8 @@ const Dashboard = () => {
           </div>
         </Link>
       </div>
+      {/* Analytics API Test - Remove this in production */}
+      <AnalyticsTest />
     </div>
   );
 };

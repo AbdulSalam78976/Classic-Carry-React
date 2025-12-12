@@ -16,6 +16,8 @@ import CategoryForm from './pages/CategoryForm';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import Users from './pages/Users';
+import Reviews from './pages/Reviews';
+import Analytics from './pages/Analytics';
 import Coupons from './pages/Coupons';
 import Settings from './pages/Settings';
 import Contacts from './pages/Contacts';
@@ -130,6 +132,8 @@ const AppContent = () => {
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<OrderDetail />} />
         <Route path="users" element={<Users />} />
+        <Route path="reviews" element={<Reviews />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="settings" element={<Settings />} />

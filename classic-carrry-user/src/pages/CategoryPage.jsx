@@ -298,7 +298,7 @@ const CategoryPage = () => {
 
           {/* Products Grid */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="product-grid">
                 {products.map((product, index) => {
                   if (!product) {
                     console.warn(`Product at index ${index} is null/undefined`);

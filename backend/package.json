@@ -6,7 +6,10 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "reset-db": "node scripts/resetAndSeedDB.js",
+    "seed": "node scripts/resetAndSeedDB.js",
+    "verify-db": "node scripts/verifyDB.js"
   },
   "keywords": [
     "ecommerce",

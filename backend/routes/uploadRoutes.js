@@ -113,6 +113,37 @@ router.post('/hero', protect, admin, upload.single('image'), (req, res) => {
   }
 });
 
+// Upload review images (for authenticated users)
+router.post('/review', protect, upload.array('images', 5), (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No files uploaded'
+      });
+    }
+
+    const images = req.files.map(file => ({
+      url: file.path,
+      publicId: file.filename
+    }));
+    
+    res.json({
+      success: true,
+      message: 'Review images uploaded successfully',
+      data: {
+        images,
+        count: req.files.length
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // Delete image from Cloudinary
 router.delete('/:publicId', protect, admin, async (req, res) => {
   try {
