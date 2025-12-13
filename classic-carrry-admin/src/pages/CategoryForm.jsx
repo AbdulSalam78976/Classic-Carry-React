@@ -49,19 +49,16 @@ const CategoryForm = () => {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
         showNotification('Image size must be less than 5MB', 'error');
         return;
       }
 
-      // Show loading state
       setLoading(true);
 
       try {
-        // Upload image to server
-        const formData = new FormData();
-        formData.append('image', file);
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', file);
 
         const token = localStorage.getItem('adminToken');
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -70,13 +67,12 @@ const CategoryForm = () => {
           headers: {
             'Authorization': `Bearer ${token}`
           },
-          body: formData
+          body: uploadFormData
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          // Use the Cloudinary URL directly
           setFormData(prev => ({ ...prev, image: data.data.url }));
           showNotification('Image uploaded successfully', 'success');
         } else {
@@ -84,7 +80,6 @@ const CategoryForm = () => {
         }
       } catch (error) {
         showNotification('Failed to upload image', 'error');
-        console.error('Upload error:', error);
       } finally {
         setLoading(false);
       }
@@ -117,16 +112,16 @@ const CategoryForm = () => {
   };
 
   return (
-    <div className="space-y-6 fade-in">
-      <div className="flex items-center gap-4">
+    <div className="space-y-8 fade-in max-w-5xl mx-auto">
+      <div className="flex items-center gap-6">
         <button
           onClick={() => navigate('/categories')}
-          className="text-gray-400 hover:text-white transition"
+          className="w-12 h-12 rounded-xl glass-card flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 group"
         >
-          <i className="fas fa-arrow-left text-xl"></i>
+          <i className="fas fa-arrow-left text-xl group-hover:-translate-x-1 transition-transform"></i>
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2 font-display">
             {id ? 'Edit Category' : 'Add New Category'}
           </h1>
           <p className="text-gray-400">
@@ -135,137 +130,154 @@ const CategoryForm = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-3xl">
-        <div className="space-y-6">
-          {/* Category Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Category Name *
-            </label>
-            <input
-              type="text"
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="e.g., Summer Caps, Leather Wallets"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="glass-panel p-8 rounded-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Category Image */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Category Image *
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              disabled={loading}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-[#D2C1B6] file:text-gray-900 file:font-semibold hover:file:bg-[#e2c9b8] file:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            {loading && !formData.image && (
-              <div className="mt-4 flex items-center gap-2 text-[#D2C1B6]">
-                <i className="fas fa-spinner fa-spin"></i>
-                <span className="text-sm">Uploading image...</span>
+          {/* Left Column - Image */}
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">
+                Category Image
+              </label>
+              <div className="relative group">
+                <div className={`aspect-video rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center overflow-hidden transition-all duration-300 ${!formData.image && 'hover:border-primary hover:bg-white/5'}`}>
+                  {formData.image ? (
+                    <img
+                      src={formData.image}
+                      alt="Category preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center p-6">
+                      <i className="fas fa-cloud-upload-alt text-4xl text-gray-500 mb-3 group-hover:text-primary transition-colors"></i>
+                      <p className="text-sm text-gray-400">Click to upload image</p>
+                      <p className="text-xs text-gray-500 mt-1">rec. 16:9 ratio</p>
+                    </div>
+                  )}
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    disabled={loading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                  />
+
+                  {loading && !formData.image && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
+                      <div className="spinner"></div>
+                    </div>
+                  )}
+                </div>
+                {formData.image && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image: '' })}
+                    className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                )}
               </div>
-            )}
-            {formData.image && (
-              <div className="mt-4">
-                <p className="text-xs text-gray-400 mb-2">Preview:</p>
-                <img 
-                  src={formData.image} 
-                  alt="Category preview" 
-                  className="w-48 h-36 object-cover rounded-lg border-2 border-gray-600"
+            </div>
+
+            <div className="glass-card p-4 rounded-xl border-white/5">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  name="isActive"
+                  checked={formData.isActive}
+                  onChange={handleChange}
+                  className="w-5 h-5 rounded border-gray-600 text-primary focus:ring-primary/50 cursor-pointer bg-slate-800"
                 />
+                <label htmlFor="isActive" className="cursor-pointer flex-1 user-select-none">
+                  <span className="text-white font-bold block mb-0.5">Category Live</span>
+                  <span className="text-gray-400 text-xs">
+                    Visible to customers
+                  </span>
+                </label>
               </div>
-            )}
-            <p className="text-xs text-gray-500 mt-2">
-              Upload a category image (recommended: 800x600px or 16:9 ratio)
-            </p>
+            </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Category Description
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition resize-none"
-              placeholder="Brief description of this category..."
-            />
-          </div>
+          {/* Right Column - Form Data */}
+          <div className="lg:col-span-2 space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">
+                Category Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="glass-input w-full px-5 py-3.5"
+                placeholder="e.g., Summer Caps"
+              />
+            </div>
 
-          {/* Display Order */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              Display Order *
-            </label>
-            <input
-              type="number"
-              name="displayOrder"
-              required
-              value={formData.displayOrder}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-lg bg-gray-700 text-gray-100 border-2 border-gray-600 focus:border-[#D2C1B6] focus:outline-none transition"
-              placeholder="1"
-              min="1"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Lower numbers appear first (e.g., 1 will show before 2)
-            </p>
-          </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows="4"
+                className="glass-input w-full px-5 py-3.5 resize-none"
+                placeholder="Brief description of this category..."
+              />
+            </div>
 
-          {/* Is Active Toggle */}
-          <div className="flex items-center gap-3 p-4 bg-gray-700 rounded-lg border-2 border-gray-600">
-            <input
-              type="checkbox"
-              id="isActive"
-              name="isActive"
-              checked={formData.isActive}
-              onChange={handleChange}
-              className="w-6 h-6 rounded border-gray-600 text-[#D2C1B6] focus:ring-[#D2C1B6] cursor-pointer"
-            />
-            <label htmlFor="isActive" className="cursor-pointer flex-1">
-              <span className="text-gray-100 font-semibold block">Category is Live</span>
-              <span className="text-gray-400 text-sm">
-                Make this category visible to customers on the website
-              </span>
-            </label>
-          </div>
-        </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">
+                Display Order
+              </label>
+              <input
+                type="number"
+                name="displayOrder"
+                required
+                value={formData.displayOrder}
+                onChange={handleChange}
+                className="glass-input w-full px-5 py-3.5"
+                placeholder="1"
+                min="1"
+              />
+              <p className="text-xs text-gray-500 mt-2 pl-1">
+                Lower numbers appear first in the menu.
+              </p>
+            </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 mt-8 pt-6 border-t border-gray-700">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-[#D2C1B6] text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-[#e2c9b8] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i>
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <i className="fas fa-save"></i>
-                <span>{id ? 'Update Category' : 'Create Category'}</span>
-              </>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/categories')}
-            className="bg-gray-700 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition"
-          >
-            Cancel
-          </button>
+            <div className="flex gap-4 pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-slate-900 py-3.5 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save"></i>
+                    <span>{id ? 'Update Category' : 'Create Category'}</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/categories')}
+                className="px-8 py-3.5 rounded-xl font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors border border-transparent hover:border-white/10"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       </form>
     </div>

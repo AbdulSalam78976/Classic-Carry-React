@@ -102,15 +102,15 @@ export const userAPI = {
   },
 
   forgotPassword: async (email) => {
-    return apiCall('/users/forgot-password', {
+    return apiCall('/users/forgotpassword', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   },
 
   resetPassword: async (token, password) => {
-    return apiCall(`/users/reset-password/${token}`, {
-      method: 'POST',
+    return apiCall(`/users/resetpassword/${token}`, {
+      method: 'PUT',
       body: JSON.stringify({ password }),
     });
   },

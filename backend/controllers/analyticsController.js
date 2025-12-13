@@ -6,7 +6,16 @@ import Category from '../models/Category.js';
 import mongoose from 'mongoose';
 
 // Helper function to get date range
-const getDateRange = (period) => {
+// Helper function to get date range
+const getAnalyticsDates = (query) => {
+  if (query.startDate && query.endDate) {
+    return {
+      startDate: new Date(query.startDate),
+      endDate: new Date(query.endDate)
+    };
+  }
+
+  const period = query.period || 'month';
   const now = new Date();
   let startDate, endDate = now;
 
@@ -37,8 +46,7 @@ const getDateRange = (period) => {
 // Dashboard overview stats
 export const getDashboardStats = async (req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    const { startDate, endDate } = getDateRange(period);
+    const { startDate, endDate } = getAnalyticsDates(req.query);
 
     // Total stats
     const [
@@ -124,8 +132,8 @@ export const getDashboardStats = async (req, res) => {
 // Sales analytics
 export const getSalesAnalytics = async (req, res) => {
   try {
-    const { period = 'month', groupBy = 'day' } = req.query;
-    const { startDate, endDate } = getDateRange(period);
+    const { groupBy = 'day' } = req.query;
+    const { startDate, endDate } = getAnalyticsDates(req.query);
 
     // Group by format
     let groupFormat;
@@ -199,8 +207,7 @@ export const getSalesAnalytics = async (req, res) => {
 // Product analytics
 export const getProductAnalytics = async (req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    const { startDate, endDate } = getDateRange(period);
+    const { startDate, endDate } = getAnalyticsDates(req.query);
 
     // Top selling products
     const topProducts = await Order.aggregate([
@@ -243,9 +250,9 @@ export const getProductAnalytics = async (req, res) => {
       isActive: true,
       stock: { $lt: 10 }
     })
-    .select('name stock price categoryName')
-    .sort({ stock: 1 })
-    .limit(10);
+      .select('name stock price categoryName')
+      .sort({ stock: 1 })
+      .limit(10);
 
     // Product ratings distribution
     const ratingsDistribution = await Product.aggregate([
@@ -284,8 +291,7 @@ export const getProductAnalytics = async (req, res) => {
 // User analytics
 export const getUserAnalytics = async (req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    const { startDate, endDate } = getDateRange(period);
+    const { startDate, endDate } = getAnalyticsDates(req.query);
 
     // User registrations over time
     const userRegistrations = await User.aggregate([
@@ -382,8 +388,7 @@ export const getUserAnalytics = async (req, res) => {
 // Revenue analytics
 export const getRevenueAnalytics = async (req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    const { startDate, endDate } = getDateRange(period);
+    const { startDate, endDate } = getAnalyticsDates(req.query);
 
     // Revenue over time
     const revenueData = await Order.aggregate([

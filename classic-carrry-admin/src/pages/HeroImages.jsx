@@ -47,99 +47,104 @@ const HeroImages = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
         <div className="spinner"></div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-white">Hero Images</h1>
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2 font-display">Hero Showcase</h1>
+          <p className="text-gray-400">Manage the hero section slider images</p>
+        </div>
         <Link
           to="/hero-images/new"
-          className="bg-[#D2C1B6] text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-[#e2c9b8] transition"
+          className="bg-[#D2C1B6] hover:bg-[#C4B5A8] text-slate-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 shadow-sm"
         >
-          <i className="fas fa-plus mr-2"></i>
-          Add Hero Image
+          <i className="fas fa-plus"></i>
+          <span>Add Image</span>
         </Link>
       </div>
 
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-700">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Image
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Order
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {heroImages.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="px-6 py-8 text-center text-gray-400">
-                    No hero images found. Add your first hero image!
-                  </td>
-                </tr>
-              ) : (
-                heroImages.map((image) => (
-                  <tr key={image._id} className="hover:bg-gray-700 transition">
-                    <td className="px-6 py-4">
-                      <img
-                        src={image.image}
-                        alt="Hero"
-                        className="w-32 h-20 object-cover rounded"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-white font-medium">{image.order}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleToggleStatus(image._id)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          image.isActive
-                            ? 'bg-green-600 text-white'
-                            : 'bg-gray-600 text-gray-300'
-                        }`}
-                      >
-                        {image.isActive ? 'Active' : 'Inactive'}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <Link
-                          to={`/hero-images/edit/${image._id}`}
-                          className="text-blue-400 hover:text-blue-300 transition"
-                        >
-                          <i className="fas fa-edit"></i>
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(image._id)}
-                          className="text-red-400 hover:text-red-300 transition"
-                        >
-                          <i className="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {heroImages.length === 0 ? (
+        <div className="glass-panel p-16 rounded-2xl text-center">
+          <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
+            <i className="fas fa-images text-5xl text-gray-500"></i>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2 font-display">No Hero Images</h2>
+          <p className="text-gray-400 mb-8">Add your first promotional banner to the home page.</p>
+          <Link
+            to="/hero-images/new"
+            className="inline-flex items-center gap-2 text-primary font-bold hover:text-primary-light transition"
+          >
+            Get Started <i className="fas fa-arrow-right"></i>
+          </Link>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {heroImages.map((image) => (
+            <div key={image._id} className="group relative rounded-2xl overflow-hidden glass-panel border-0 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
+              {/* Image Container */}
+              <div className="aspect-w-16 aspect-h-9 w-full bg-gray-900">
+                <img
+                  src={image.image}
+                  alt="Hero"
+                  className="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                />
+
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90"></div>
+              </div>
+
+              {/* Status Badge */}
+              <div className="absolute top-4 left-4">
+                <button
+                  onClick={() => handleToggleStatus(image._id)}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border transition-all ${image.isActive
+                    ? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30'
+                    : 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30'
+                    }`}
+                >
+                  {image.isActive ? 'Active' : 'Inactive'}
+                </button>
+              </div>
+
+              {/* Order Badge */}
+              <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1 rounded-lg text-xs font-bold text-white flex items-center gap-1 shadow-lg">
+                <span className="text-gray-400 uppercase text-[10px]">Order</span>
+                <span className="text-primary">{image.order}</span>
+              </div>
+
+              {/* Actions */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-between items-end translate-y-0 transition-transform duration-300">
+                <div>
+                  <h3 className="text-white font-bold text-lg mb-1 drop-shadow-md">Hero Banner #{image.order}</h3>
+                  <p className="text-gray-400 text-xs">ID: {image._id.slice(-6)}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Link
+                    to={`/hero-images/edit/${image._id}`}
+                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-primary hover:text-slate-900 text-white backdrop-blur-md border border-white/10 flex items-center justify-center transition-all shadow-lg"
+                    title="Edit"
+                  >
+                    <i className="fas fa-edit"></i>
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(image._id)}
+                    className="w-8 h-8 rounded-lg bg-white/10 hover:bg-red-500 text-white backdrop-blur-md border border-white/10 flex items-center justify-center transition-all shadow-lg"
+                    title="Delete"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-// import Logo from '../components/Logo'; // Removed Logo component usage
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -32,20 +31,20 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-100 flex items-center justify-center p-4 relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
-                backgroundImage: 'radial-gradient(circle at 2px 2px, gray 1px, transparent 0)',
-                backgroundSize: '24px 24px'
-            }}></div>
+        <div className="min-h-screen w-full bg-[#f9fafb] flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+            </div>
 
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden relative z-10 p-8 md:p-10">
+            <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden relative z-10 p-8 md:p-10 border border-gray-100">
                 <div className="text-center mb-8">
-                    <Link to="/" className="inline-block mb-6">
-                        <img src="/assets/images/logo.png" alt="Company Logo" className="h-12 w-auto object-contain mx-auto" />
+                    <Link to="/" className="inline-block mb-6 transform hover:scale-105 transition-transform">
+                        <img src="/assets/images/logo.png" alt="Company Logo" className="h-14 w-auto object-contain mx-auto" />
                     </Link>
-                    <h1 className="font-display text-2xl font-bold text-gray-900 mb-2">Reset Password</h1>
-                    <p className="text-gray-500 text-sm">
+                    <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">Reset Password</h1>
+                    <p className="text-gray-500">
                         {isSubmitted
                             ? 'Check your email for instructions'
                             : 'Enter your email to receive a reset link'}
@@ -53,9 +52,9 @@ const ForgotPassword = () => {
                 </div>
 
                 {isSubmitted ? (
-                    <div className="text-center">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i className="fas fa-envelope-open-text text-green-600 text-2xl"></i>
+                    <div className="text-center animate-fade-in-up">
+                        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-green-100">
+                            <i className="fas fa-envelope-open-text text-green-500 text-3xl"></i>
                         </div>
                         <p className="text-gray-600 mb-8 leading-relaxed">
                             We have sent a password reset link to <span className="font-semibold text-gray-900">{email}</span>.
@@ -63,24 +62,24 @@ const ForgotPassword = () => {
                         </p>
                         <button
                             onClick={() => setIsSubmitted(false)}
-                            className="text-primary hover:text-primary-dark font-medium text-sm transition-colors"
+                            className="text-primary hover:text-primary-dark font-medium text-sm transition-colors hover:underline"
                         >
                             Didn't receive the email? Try again
                         </button>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="animate-fade-in-up">
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i className="fas fa-envelope text-gray-400"></i>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">Email Address</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary text-gray-400">
+                                    <i className="fas fa-envelope"></i>
                                 </div>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all duration-300"
                                     placeholder="name@example.com"
                                 />
                             </div>
@@ -89,23 +88,23 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary text-white font-medium py-3 rounded-lg hover:bg-primary-dark transition-all shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
+                            className="w-full bg-primary text-white font-semibold py-3.5 rounded-xl hover:bg-primary-dark transition-all transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
                                     <i className="fas fa-spinner fa-spin"></i>
-                                    Sending...
+                                    <span>Sending Link...</span>
                                 </>
                             ) : (
-                                'Send Reset Link'
+                                <span>Send Reset Link</span>
                             )}
                         </button>
                     </form>
                 )}
 
-                <div className="mt-8 text-center pt-6 border-t border-gray-100">
-                    <Link to="/login" className="text-gray-500 hover:text-primary text-sm font-medium flex items-center justify-center gap-2 transition-colors">
-                        <i className="fas fa-arrow-left text-xs"></i>
+                <div className="mt-8 text-center pt-6 border-t border-gray-50">
+                    <Link to="/login" className="text-gray-500 hover:text-primary text-sm font-medium flex items-center justify-center gap-2 transition-colors group">
+                        <i className="fas fa-arrow-left text-xs transition-transform group-hover:-translate-x-1"></i>
                         Back to Login
                     </Link>
                 </div>

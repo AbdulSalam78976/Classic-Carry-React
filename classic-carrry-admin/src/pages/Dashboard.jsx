@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI, orderAPI, userAPI } from '../services/api';
-import { analyticsAPI } from '../services/analyticsAPI';
 import { useSettings } from '../contexts/SettingsContext';
-
 
 const Dashboard = () => {
   const { settings } = useSettings();
@@ -78,9 +76,9 @@ const Dashboard = () => {
       const activity = [
         ...orders.slice(0, 3).map(o => ({
           type: 'order',
-          message: `New order #${o.orderNumber} from ${o.customer.firstName}`,
+          message: `New order #${o.orderNumber} from ${o.customer?.firstName || 'Guest'}`,
           time: o.createdAt,
-          icon: 'fa-shopping-cart',
+          icon: 'fa-shopping-bag',
           color: 'green'
         })),
         ...users.slice(0, 2).map(u => ({
@@ -88,7 +86,7 @@ const Dashboard = () => {
           message: `New user registered: ${u.name}`,
           time: u.createdAt,
           icon: 'fa-user-plus',
-          color: 'blue'
+          color: 'purple'
         }))
       ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
       setRecentActivity(activity);
@@ -119,345 +117,215 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
         <div className="spinner"></div>
       </div>
     );
   }
 
+  const StatCard = ({ title, value, icon, color, gradient }) => (
+    <div className={`glass-card p-6 relative overflow-hidden group`}>
+      <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500`}>
+        <i className={`fas ${icon} text-6xl text-${color}-400`}></i>
+      </div>
+      <div className="relative z-10">
+        <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">{title}</p>
+        <h3 className="text-3xl font-bold text-white mb-2">{value}</h3>
+        <div className={`h-1 w-12 rounded-full bg-gradient-to-r ${gradient}`}></div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6 fade-in">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-gray-400">Welcome to {settings.appearance.siteName} Admin Panel</p>
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2 font-display">Dashboard</h1>
+          <p className="text-gray-400">Overview of your store's performance</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={fetchDashboardData} className="glass-card px-4 py-2 text-sm hover:text-white text-gray-400 flex items-center gap-2">
+            <i className="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Total Products</p>
-              <h3 className="text-3xl font-bold text-white">{stats.totalProducts}</h3>
-            </div>
-            <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center">
-              <i className="fas fa-box text-blue-400 text-xl"></i>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Total Orders</p>
-              <h3 className="text-3xl font-bold text-white">{stats.totalOrders}</h3>
-            </div>
-            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
-              <i className="fas fa-shopping-cart text-green-400 text-xl"></i>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Total Users</p>
-              <h3 className="text-3xl font-bold text-white">{stats.totalUsers}</h3>
-            </div>
-            <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center">
-              <i className="fas fa-users text-purple-400 text-xl"></i>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Pending Orders</p>
-              <h3 className="text-3xl font-bold text-white">{stats.pendingOrders}</h3>
-            </div>
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-              <i className="fas fa-clock text-yellow-400 text-xl"></i>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="Total Revenue"
+          value={`Rs ${stats.totalRevenue.toLocaleString()}`}
+          icon="fa-coins"
+          color="yellow"
+          gradient="from-yellow-400 to-yellow-600"
+        />
+        <StatCard
+          title="Total Orders"
+          value={stats.totalOrders}
+          icon="fa-shopping-bag"
+          color="blue"
+          gradient="from-blue-400 to-blue-600"
+        />
+        <StatCard
+          title="Active Users"
+          value={stats.totalUsers}
+          icon="fa-users"
+          color="purple"
+          gradient="from-purple-400 to-purple-600"
+        />
+        <StatCard
+          title="products"
+          value={stats.totalProducts}
+          icon="fa-box"
+          color="green"
+          gradient="from-green-400 to-green-600"
+        />
       </div>
 
-      {/* Revenue Card */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-sm mb-1">Total Revenue</p>
-            <h3 className="text-4xl font-bold text-[#D2C1B6]">Rs {stats.totalRevenue.toLocaleString()}</h3>
-          </div>
-          <div className="w-16 h-16 bg-[#D2C1B6]/20 rounded-lg flex items-center justify-center">
-            <i className="fas fa-dollar-sign text-[#D2C1B6] text-2xl"></i>
-          </div>
-        </div>
-      </div>
-
-      {/* Analytics Preview */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-white">Analytics Overview</h2>
-            <p className="text-gray-400">Quick insights into your business performance</p>
-          </div>
-          <Link
-            to="/analytics"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <i className="fas fa-chart-bar"></i>
-            View Full Analytics
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center">
-                <i className="fas fa-trending-up text-green-400"></i>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Today's Revenue</p>
-                <p className="text-xl font-bold text-white">Rs {stats.todayRevenue.toLocaleString()}</p>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Chart Section */}
+        <div className="lg:col-span-2 glass-panel rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white">Revenue Analytics</h2>
+              <p className="text-sm text-gray-400">Last 7 days performance</p>
             </div>
+            <Link to="/analytics" className="text-primary hover:text-white text-sm flex items-center gap-1 transition-colors">
+              Full Report <i className="fas fa-arrow-right"></i>
+            </Link>
           </div>
-          
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                <i className="fas fa-calendar-week text-blue-400"></i>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">This Week</p>
-                <p className="text-xl font-bold text-white">Rs {stats.weekRevenue.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                <i className="fas fa-calendar-alt text-purple-400"></i>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">This Month</p>
-                <p className="text-xl font-bold text-white">Rs {stats.monthRevenue.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Recent Orders */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Recent Orders</h2>
-          <Link to="/orders" className="text-[#D2C1B6] hover:text-white transition">
-            View All <i className="fas fa-arrow-right ml-1"></i>
-          </Link>
-        </div>
-
-        {recentOrders.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">No orders yet</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Order #</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Customer</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Total</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Status</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order._id} className="border-b border-gray-700/50 hover:bg-gray-700/30 transition">
-                    <td className="py-3 px-4 text-white font-mono text-sm">{order.orderNumber}</td>
-                    <td className="py-3 px-4 text-gray-300">{order.customer.firstName} {order.customer.lastName}</td>
-                    <td className="py-3 px-4 text-[#D2C1B6] font-semibold">Rs {order.pricing.total.toLocaleString()}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        order.status === 'delivered' ? 'bg-green-600/20 text-green-400' :
-                        order.status === 'shipped' ? 'bg-blue-600/20 text-blue-400' :
-                        order.status === 'processing' ? 'bg-yellow-600/20 text-yellow-400' :
-                        'bg-gray-600/20 text-gray-400'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-gray-400 text-sm">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Sales Chart & Low Stock Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sales Chart */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <h2 className="text-xl font-bold text-white mb-6">Sales Overview (Last 7 Days)</h2>
-          <div className="space-y-4">
+          <div className="h-64 flex items-end justify-between gap-2 px-2">
             {salesData.map((day, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <div className="w-16 text-gray-400 text-sm">{day.date}</div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-gray-300 text-sm">{day.orders} orders</span>
-                    <span className="text-[#D2C1B6] font-semibold">Rs {day.revenue.toLocaleString()}</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-[#D2C1B6] h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min((day.revenue / Math.max(...salesData.map(d => d.revenue))) * 100, 100)}%` }}
-                    ></div>
+              <div key={index} className="flex flex-col items-center gap-2 flex-1 group">
+                <div className="w-full relative h-48 flex items-end justify-center">
+                  <div
+                    style={{ height: `${Math.max((day.revenue / Math.max(...salesData.map(d => d.revenue || 1))) * 100, 5)}%` }}
+                    className="w-full max-w-[40px] bg-gradient-to-t from-primary/20 to-primary rounded-t-lg group-hover:from-primary/40 group-hover:to-primary-light transition-all duration-300 relative"
+                  >
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 z-10">
+                      Rs {day.revenue.toLocaleString()}
+                    </div>
                   </div>
                 </div>
+                <span className="text-xs text-gray-500 font-medium">{day.date}</span>
               </div>
             ))}
           </div>
-          <div className="mt-6 pt-6 border-t border-gray-700 grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-gray-400 text-xs mb-1">Today</p>
-              <p className="text-white font-bold">Rs {stats.todayRevenue.toLocaleString()}</p>
+
+          <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/5">
+            <div className="text-center">
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Today</p>
+              <p className="text-lg font-bold text-white">Rs {stats.todayRevenue.toLocaleString()}</p>
             </div>
-            <div>
-              <p className="text-gray-400 text-xs mb-1">This Week</p>
-              <p className="text-white font-bold">Rs {stats.weekRevenue.toLocaleString()}</p>
+            <div className="text-center border-l border-white/5">
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">This Week</p>
+              <p className="text-lg font-bold text-white">Rs {stats.weekRevenue.toLocaleString()}</p>
             </div>
-            <div>
-              <p className="text-gray-400 text-xs mb-1">This Month</p>
-              <p className="text-white font-bold">Rs {stats.monthRevenue.toLocaleString()}</p>
+            <div className="text-center border-l border-white/5">
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">This Month</p>
+              <p className="text-lg font-bold text-white">Rs {stats.monthRevenue.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        {/* Low Stock Alerts */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">Low Stock Alerts</h2>
-            <span className="px-3 py-1 bg-red-600/20 text-red-400 rounded-full text-xs font-semibold">
-              {lowStockProducts.length} Items
-            </span>
-          </div>
-          {lowStockProducts.length === 0 ? (
-            <div className="text-center py-8">
-              <i className="fas fa-check-circle text-green-400 text-4xl mb-3"></i>
-              <p className="text-gray-400">All products are well stocked!</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {lowStockProducts.map((product) => (
-                <div key={product._id} className="flex items-center gap-4 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition">
-                  <img 
-                    src={product.mainImage} 
-                    alt={product.name}
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-white font-medium text-sm">{product.name}</h3>
-                    <p className="text-gray-400 text-xs">SKU: {product.sku || 'N/A'}</p>
+        {/* Side Widgets */}
+        <div className="space-y-8">
+          {/* Pending Orders */}
+          <div className="glass-panel rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+              <span>Pending Orders</span>
+              <span className="bg-yellow-500/20 text-yellow-500 text-xs px-2 py-1 rounded-full">{stats.pendingOrders} New</span>
+            </h3>
+            <div className="space-y-3">
+              {recentOrders.filter(o => o.status === 'pending').slice(0, 3).map(order => (
+                <div key={order._id} className="glass-card p-3 flex justify-between items-center group cursor-pointer hover:border-primary/30">
+                  <div>
+                    <p className="text-white font-medium text-sm">#{order.orderNumber}</p>
+                    <p className="text-xs text-gray-400">{order.customer?.firstName}</p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-bold ${product.stock === 0 ? 'text-red-400' : 'text-yellow-400'}`}>
-                      {product.stock} left
-                    </p>
-                    <Link 
-                      to={`/products/edit/${product._id}`}
-                      className="text-[#D2C1B6] text-xs hover:text-white transition"
-                    >
-                      Restock
+                    <p className="text-primary font-bold text-sm">Rs {order.pricing.total.toLocaleString()}</p>
+                    <Link to={`/orders/${order.orderNumber}`} className="w-8 h-8 rounded-lg bg-white/5 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition-all">
+                      <i className="fas fa-eye text-xs"></i>
                     </Link>
                   </div>
                 </div>
               ))}
+              {recentOrders.filter(o => o.status === 'pending').length === 0 && (
+                <p className="text-gray-500 text-sm text-center py-4">No pending orders</p>
+              )}
             </div>
-          )}
+            <Link to="/orders" className="block mt-4 text-center text-sm text-gray-400 hover:text-white transition-colors">
+              View All Orders
+            </Link>
+          </div>
+
+          {/* Low Stock */}
+          <div className="glass-panel rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4">Low Stock Alerts</h3>
+            <div className="space-y-3">
+              {lowStockProducts.map(product => (
+                <Link to={`/products/edit/${product._id}`} key={product._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5">
+                    <img src={product.mainImage} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-300 truncate group-hover:text-white">{product.name}</p>
+                    <p className="text-xs text-red-400">{product.stock} remaining</p>
+                  </div>
+                  <i className="fas fa-chevron-right text-gray-600 text-xs group-hover:text-white"></i>
+                </Link>
+              ))}
+              {lowStockProducts.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-4 text-gray-500">
+                  <i className="fas fa-check-circle text-2xl text-green-500/50 mb-2"></i>
+                  <p className="text-sm">Inventory healthy</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Recent Activity Feed */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <h2 className="text-xl font-bold text-white mb-6">Recent Activity</h2>
-        {recentActivity.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">No recent activity</p>
-        ) : (
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-start gap-4 p-3 hover:bg-gray-700/30 rounded-lg transition">
-                <div className={`w-10 h-10 bg-${activity.color}-600/20 rounded-full flex items-center justify-center flex-shrink-0`}>
-                  <i className={`fas ${activity.icon} text-${activity.color}-400`}></i>
-                </div>
-                <div className="flex-1">
-                  <p className="text-gray-300 text-sm">{activity.message}</p>
-                  <p className="text-gray-500 text-xs mt-1">
-                    {new Date(activity.time).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Recent Activity Table Table */}
+      <div className="glass-panel rounded-2xl overflow-hidden p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-white">Recent Activity</h2>
+        </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Link to="/products/new" className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-[#D2C1B6] transition group">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition">
-              <i className="fas fa-plus text-blue-400 group-hover:text-white transition"></i>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-1">Add Product</h3>
-              <p className="text-gray-400 text-sm">Create new product</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link to="/orders" className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-[#D2C1B6] transition group">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center group-hover:bg-green-600 transition">
-              <i className="fas fa-list text-green-400 group-hover:text-white transition"></i>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-1">Manage Orders</h3>
-              <p className="text-gray-400 text-sm">View all orders</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link to="/users" className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-[#D2C1B6] transition group">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition">
-              <i className="fas fa-users text-purple-400 group-hover:text-white transition"></i>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-1">View Users</h3>
-              <p className="text-gray-400 text-sm">Manage users</p>
-            </div>
-          </div>
-        </Link>
-
-        <Link to="/coupons" className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-[#D2C1B6] transition group">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center group-hover:bg-yellow-600 transition">
-              <i className="fas fa-tag text-yellow-400 group-hover:text-white transition"></i>
-            </div>
-            <div>
-              <h3 className="text-white font-semibold mb-1">Coupons</h3>
-              <p className="text-gray-400 text-sm">Manage discounts</p>
-            </div>
-          </div>
-        </Link>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10 text-left">
+                <th className="py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Type</th>
+                <th className="py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
+                <th className="py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Time</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {recentActivity.map((activity, idx) => (
+                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                  <td className="py-3 px-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-${activity.color || 'gray'}-500/20 text-${activity.color || 'gray'}-400`}>
+                      <i className={`fas ${activity.icon}`}></i>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-300">{activity.message}</td>
+                  <td className="py-3 px-4 text-sm text-gray-500 whitespace-nowrap">
+                    {new Date(activity.time).toLocaleDateString()} <span className="text-xs opacity-50">{new Date(activity.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </td>
+                </tr>
+              ))}
+              {recentActivity.length === 0 && (
+                <tr>
+                  <td colSpan="3" className="py-8 text-center text-gray-500">No recent activity found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>

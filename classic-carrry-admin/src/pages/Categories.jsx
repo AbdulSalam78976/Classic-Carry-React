@@ -53,22 +53,22 @@ const Categories = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
         <div className="spinner"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 fade-in">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Categories</h1>
-          <p className="text-gray-400">Manage product categories</p>
+          <h1 className="text-4xl font-bold text-white mb-2 font-display">Categories</h1>
+          <p className="text-gray-400">Organize your products with categories</p>
         </div>
         <Link
           to="/categories/new"
-          className="bg-[#D2C1B6] text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-[#e2c9b8] transition flex items-center gap-2"
+          className="bg-[#D2C1B6] hover:bg-[#C4B5A8] text-slate-900 px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 shadow-sm"
         >
           <i className="fas fa-plus"></i>
           <span>Add Category</span>
@@ -76,68 +76,69 @@ const Categories = () => {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {categories.map((category) => (
           <div
             key={category._id}
-            className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:border-[#D2C1B6] transition-all duration-300"
+            className="glass-card overflow-hidden group hover:-translate-y-1 transition-all duration-500"
           >
             <div className="aspect-video relative overflow-hidden">
               <img
                 src={category.image}
                 alt={category.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 onError={(e) => {
                   e.target.src = '/placeholder.jpg';
                 }}
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
               <div className="absolute top-2 right-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     handleToggleStatus(category);
                   }}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
-                    category.isActive
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-red-600 text-white hover:bg-red-700'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-lg transition-all duration-300 ${category.isActive
+                    ? 'bg-green-500/80 text-white hover:bg-green-500'
+                    : 'bg-red-500/80 text-white hover:bg-red-500'
+                    }`}
                 >
-                  {category.isActive ? '✓ Live' : '✕ Not Live'}
+                  {category.isActive ? 'Live' : 'Hidden'}
                 </button>
               </div>
             </div>
 
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold text-lg mb-1">{category.name}</h3>
-                  <p className="text-gray-400 text-sm mb-2 line-clamp-2">
-                    {category.description || 'No description'}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span className="bg-gray-700 px-2 py-1 rounded">
-                      Order: {category.displayOrder}
-                    </span>
-                  </div>
+            <div className="p-5">
+              <div className="mb-4">
+                <h3 className="text-white font-bold text-xl mb-1 group-hover:text-primary transition-colors">{category.name}</h3>
+                <p className="text-gray-400 text-sm line-clamp-2 h-10">
+                  {category.description || 'No description available'}
+                </p>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="bg-white/10 px-2 py-1 rounded text-xs text-gray-300 border border-white/5">
+                    Display Order: <span className="text-white font-bold">{category.displayOrder}</span>
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-700">
-                <Link
-                  to={`/categories/edit/${category._id}`}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition text-center text-sm font-medium"
-                >
-                  <i className="fas fa-edit mr-1"></i>
-                  Edit
-                </Link>
-                <button
-                  onClick={() => handleDelete(category._id, category.name)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition text-sm font-medium"
-                >
-                  <i className="fas fa-trash mr-1"></i>
-                  Delete
-                </button>
+              <div className="flex items-center gap-3 pt-4 border-t border-white/5 transition-all duration-300 transform translate-y-0">
+                <div className="flex gap-2">
+                  <Link
+                    to={`/categories/edit/${category._id}`}
+                    className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition-all flex items-center justify-center border border-blue-500/20"
+                    title="Edit"
+                  >
+                    <i className="fas fa-edit"></i>
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(category._id, category.name)}
+                    className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-500/20"
+                    title="Delete"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -145,12 +146,14 @@ const Categories = () => {
       </div>
 
       {categories.length === 0 && (
-        <div className="text-center py-12 bg-gray-800 rounded-xl border border-gray-700">
-          <i className="fas fa-folder-open text-4xl text-gray-600 mb-4"></i>
-          <p className="text-gray-400 mb-4">No categories found</p>
+        <div className="text-center py-20 bg-clip-border">
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+            <i className="fas fa-folder-open text-4xl text-gray-600"></i>
+          </div>
+          <p className="text-gray-400 text-lg mb-6">No categories found</p>
           <Link
             to="/categories/new"
-            className="inline-block bg-[#D2C1B6] text-gray-900 px-6 py-2 rounded-lg font-medium hover:bg-[#e2c9b8] transition"
+            className="inline-block bg-primary text-slate-900 px-6 py-2.5 rounded-xl font-bold hover:bg-primary-light transition shadow-lg shadow-primary/20"
           >
             Create First Category
           </Link>

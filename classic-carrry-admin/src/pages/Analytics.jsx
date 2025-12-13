@@ -4,9 +4,9 @@ import LineChart from '../components/charts/LineChart';
 import BarChart from '../components/charts/BarChart';
 import PieChart from '../components/charts/PieChart';
 import AreaChart from '../components/charts/AreaChart';
-import { 
-  exportToCSV, 
-  exportToPDF, 
+import {
+  exportToCSV,
+  exportToPDF,
   prepareSalesDataForExport,
   prepareProductDataForExport,
   prepareRevenueDataForExport
@@ -20,28 +20,34 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    fetchAnalyticsData();
+    if (selectedPeriod !== 'custom') {
+      fetchAnalyticsData();
+    }
   }, [selectedPeriod]);
 
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = async (customParams = null) => {
     try {
       setLoading(true);
       setError(null);
-      
+
+      const params = customParams || { period: selectedPeriod };
+
       const [dashboard, sales, products, revenue] = await Promise.all([
-        analyticsAPI.getDashboardStats({ period: selectedPeriod }),
-        analyticsAPI.getSalesAnalytics({ period: selectedPeriod }),
-        analyticsAPI.getProductAnalytics({ period: selectedPeriod }),
-        analyticsAPI.getRevenueAnalytics({ period: selectedPeriod })
+        analyticsAPI.getDashboardStats(params),
+        analyticsAPI.getSalesAnalytics(params),
+        analyticsAPI.getProductAnalytics(params),
+        analyticsAPI.getRevenueAnalytics(params)
       ]);
 
-      setDashboardStats(dashboard);
-      setSalesData(sales);
-      setProductData(products);
-      setRevenueData(revenue);
+      setDashboardStats(dashboard.data);
+      setSalesData(sales.data);
+      setProductData(products.data);
+      setRevenueData(revenue.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       setError(error.message || 'Failed to load analytics data');
@@ -50,10 +56,18 @@ const Analytics = () => {
     }
   };
 
+  const handleCustomFilter = () => {
+    if (!customStartDate || !customEndDate) {
+      alert('Please select both start and end dates');
+      return;
+    }
+    fetchAnalyticsData({ startDate: customStartDate, endDate: customEndDate });
+  };
+
   const exportReport = (type, format) => {
     try {
       let data, title, filename;
-      
+
       switch (type) {
         case 'sales':
           if (!salesData?.salesData) return;
@@ -76,7 +90,7 @@ const Analytics = () => {
         default:
           return;
       }
-      
+
       if (format === 'csv') {
         exportToCSV(data, filename);
       } else if (format === 'pdf') {
@@ -96,45 +110,46 @@ const Analytics = () => {
     }).format(amount);
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString, format = 'short') => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
+    if (format === 'full') {
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   const StatCard = ({ title, value, change, icon, color = 'blue' }) => {
-    const colorClasses = {
-      blue: 'bg-blue-600/20',
-      green: 'bg-green-600/20',
-      yellow: 'bg-yellow-600/20',
-      purple: 'bg-purple-600/20',
-      red: 'bg-red-600/20'
-    };
-
-    const iconClasses = {
-      blue: 'text-blue-400',
-      green: 'text-green-400',
-      yellow: 'text-yellow-400',
-      purple: 'text-purple-400',
-      red: 'text-red-400'
+    const colors = {
+      blue: 'from-blue-500/20 to-blue-600/5 text-blue-400 border-blue-500/20',
+      green: 'from-green-500/20 to-green-600/5 text-green-400 border-green-500/20',
+      yellow: 'from-yellow-500/20 to-yellow-600/5 text-yellow-400 border-yellow-500/20',
+      purple: 'from-purple-500/20 to-purple-600/5 text-purple-400 border-purple-500/20',
+      red: 'from-red-500/20 to-red-600/5 text-red-400 border-red-500/20'
     };
 
     return (
-      <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-        <div className="flex items-center justify-between">
+      <div className={`glass-card p-6 rounded-2xl bg-gradient-to-br ${colors[color]} border shadow-lg hover:translate-y-[-2px] transition-transform duration-300`}>
+        <div className="flex items-start justify-between">
           <div>
-            <p className="text-gray-400 text-sm mb-1">{title}</p>
-            <p className="text-3xl font-bold text-white">{value}</p>
+            <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-2">{title}</p>
+            <h3 className="text-3xl font-bold text-white mb-2 font-display">{value}</h3>
             {change !== undefined && (
-              <p className={`text-sm ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {change >= 0 ? '+' : ''}{change}% from last period
-              </p>
+              <div className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-black/20 ${change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <i className={`fas fa-arrow-${change >= 0 ? 'up' : 'down'}`}></i>
+                <span>{Math.abs(change)}% from last period</span>
+              </div>
             )}
           </div>
-          <div className={`w-12 h-12 ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
-            <i className={`fas ${icon} ${iconClasses[color]} text-xl`}></i>
+          <div className={`w-12 h-12 rounded-xl bg-black/20 flex items-center justify-center backdrop-blur-sm shadow-inner`}>
+            <i className={`fas ${icon} text-xl`}></i>
           </div>
         </div>
       </div>
@@ -143,22 +158,24 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
+        <div className="spinner"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="bg-red-600/20 border border-red-600/30 rounded-xl p-6 text-center">
-          <i className="fas fa-exclamation-triangle text-red-400 text-4xl mb-4"></i>
-          <h2 className="text-xl font-bold text-white mb-2">Analytics Error</h2>
-          <p className="text-gray-300 mb-4">{error}</p>
+      <div className="p-6 flex items-center justify-center h-[calc(100vh-100px)]">
+        <div className="glass-panel p-8 rounded-2xl text-center border-red-500/30 max-w-md w-full">
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i className="fas fa-exclamation-triangle text-red-400 text-4xl"></i>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Analytics Error</h2>
+          <p className="text-gray-400 mb-6">{error}</p>
           <button
             onClick={fetchAnalyticsData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="w-full px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-500/20"
           >
             <i className="fas fa-refresh mr-2"></i>
             Retry
@@ -169,64 +186,98 @@ const Analytics = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 fade-in">
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
-          <p className="text-gray-400">Comprehensive business insights and reports</p>
+          <h1 className="text-4xl font-bold text-white mb-2 font-display">Analytics Dashboard</h1>
+          <p className="text-gray-400">Comprehensive business insights and performance metrics</p>
         </div>
-        
-        <div className="flex gap-4">
+
+        <div className="flex flex-col sm:flex-row gap-4">
           {/* Period Selector */}
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
-          </select>
+          <div className="flex flex-col gap-4">
+            <div className="glass-panel p-1 rounded-xl flex items-center bg-black/40 self-start">
+              {['today', 'week', 'month', 'year', 'custom'].map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setSelectedPeriod(period)}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all ${selectedPeriod === period
+                    ? 'bg-primary text-slate-900 shadow-lg shadow-primary/20'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+
+            {/* Custom Date Inputs */}
+            {selectedPeriod === 'custom' && (
+              <div className="flex flex-wrap items-center gap-4 animate-fade-in bg-white/5 p-3 rounded-xl border border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-400 uppercase">From</span>
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="glass-input px-3 py-1.5 text-sm w-auto"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-400 uppercase">To</span>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="glass-input px-3 py-1.5 text-sm w-auto"
+                  />
+                </div>
+                <button
+                  onClick={handleCustomFilter}
+                  className="px-4 py-1.5 bg-[#D2C1B6] hover:bg-[#C4B5A8] text-slate-900 rounded-lg text-sm font-bold transition-colors shadow-sm"
+                >
+                  Apply
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Export Dropdown */}
-          <div className="relative group">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors">
+          <div className="relative group z-20">
+            <button className="h-full px-6 py-2 bg-[#D2C1B6] hover:bg-[#C4B5A8] text-slate-900 rounded-xl transition-all font-bold shadow-sm flex items-center gap-3">
               <i className="fas fa-download"></i>
-              Export
-              <i className="fas fa-chevron-down"></i>
+              Export Report
+              <i className="fas fa-chevron-down text-xs opacity-70"></i>
             </button>
-            <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-              <div className="py-2">
+            <div className="absolute right-0 mt-2 w-56 glass-panel rounded-xl shadow-2xl border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
+              <div className="p-2 space-y-1">
+                <div className="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Sales Reports</div>
                 <button
                   onClick={() => exportReport('sales', 'csv')}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white rounded-lg transition-colors flex items-center gap-2"
                 >
-                  <i className="fas fa-file-csv mr-2"></i>
-                  Sales Report (CSV)
+                  <i className="fas fa-file-csv text-green-400"></i> CSV Format
                 </button>
                 <button
                   onClick={() => exportReport('sales', 'pdf')}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white rounded-lg transition-colors flex items-center gap-2"
                 >
-                  <i className="fas fa-file-pdf mr-2"></i>
-                  Sales Report (PDF)
+                  <i className="fas fa-file-pdf text-red-400"></i> PDF Format
                 </button>
+                <div className="h-px bg-white/5 my-1"></div>
+                <div className="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Other Reports</div>
                 <button
                   onClick={() => exportReport('products', 'csv')}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white rounded-lg transition-colors flex items-center gap-2"
                 >
-                  <i className="fas fa-file-csv mr-2"></i>
-                  Products Report (CSV)
+                  <i className="fas fa-box text-blue-400"></i> Top Products (CSV)
                 </button>
                 <button
                   onClick={() => exportReport('revenue', 'pdf')}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white rounded-lg transition-colors flex items-center gap-2"
                 >
-                  <i className="fas fa-file-pdf mr-2"></i>
-                  Revenue Report (PDF)
+                  <i className="fas fa-dollar-sign text-yellow-400"></i> Revenue (PDF)
                 </button>
               </div>
             </div>
@@ -235,21 +286,20 @@ const Analytics = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-700 mb-6">
+      <div className="glass-panel p-1.5 rounded-xl inline-flex overflow-x-auto max-w-full">
         {[
-          { id: 'overview', label: 'Overview', icon: 'fa-chart-line' },
-          { id: 'sales', label: 'Sales', icon: 'fa-shopping-cart' },
-          { id: 'products', label: 'Products', icon: 'fa-box' },
-          { id: 'revenue', label: 'Revenue', icon: 'fa-dollar-sign' }
+          { id: 'overview', label: 'Overview', icon: 'fa-chart-pie' },
+          { id: 'sales', label: 'Sales Analytics', icon: 'fa-shopping-bag' },
+          { id: 'products', label: 'Product Performance', icon: 'fa-tags' },
+          { id: 'revenue', label: 'Revenue Streams', icon: 'fa-coins' }
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-3 font-medium flex items-center gap-2 transition-colors ${
-              activeTab === tab.id
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            className={`px-6 py-3 rounded-lg font-bold text-sm flex items-center gap-2 transition-all whitespace-nowrap ${activeTab === tab.id
+              ? 'bg-white/10 text-white shadow-lg backdrop-blur-md border border-white/5'
+              : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
           >
             <i className={`fas ${tab.icon}`}></i>
             {tab.label}
@@ -259,169 +309,205 @@ const Analytics = () => {
 
       {/* Overview Tab */}
       {activeTab === 'overview' && (
-        dashboardStats && dashboardStats.data && dashboardStats.data.overview ? (
-        <div className="space-y-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-              title="Total Revenue"
-              value={formatCurrency(dashboardStats.data.overview.totalRevenue || 0)}
-              icon="fa-dollar-sign"
-              color="green"
-            />
-            <StatCard
-              title="Total Orders"
-              value={(dashboardStats.data.overview.totalOrders || 0).toLocaleString()}
-              icon="fa-shopping-cart"
-              color="blue"
-            />
-            <StatCard
-              title="Total Users"
-              value={(dashboardStats.data.overview.totalUsers || 0).toLocaleString()}
-              icon="fa-users"
-              color="purple"
-            />
-            <StatCard
-              title="Total Products"
-              value={(dashboardStats.data.overview.totalProducts || 0).toLocaleString()}
-              icon="fa-box"
-              color="yellow"
-            />
-          </div>
-
-          {/* Recent Orders & Top Products */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Orders */}
-            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Recent Orders</h3>
-              <div className="space-y-3">
-                {(dashboardStats.data.recentOrders || []).map((order) => (
-                  <div key={order._id} className="flex justify-between items-center p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition">
-                    <div>
-                      <p className="font-medium text-white">#{order.orderNumber}</p>
-                      <p className="text-sm text-gray-400">
-                        {order.customer.firstName} {order.customer.lastName}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-[#D2C1B6]">{formatCurrency(order.pricing.total)}</p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        order.status === 'delivered' ? 'bg-green-600/20 text-green-400' :
-                        order.status === 'pending' ? 'bg-yellow-600/20 text-yellow-400' :
-                        'bg-blue-600/20 text-blue-400'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        dashboardStats && dashboardStats.overview ? (
+          <div className="space-y-6 animate-slide-up">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard
+                title="Total Revenue"
+                value={formatCurrency(dashboardStats.overview.totalRevenue || 0)}
+                icon="fa-dollar-sign"
+                color="green"
+              />
+              <StatCard
+                title="Total Orders"
+                value={(dashboardStats.overview.totalOrders || 0).toLocaleString()}
+                icon="fa-shopping-cart"
+                color="blue"
+              />
+              <StatCard
+                title="Active Users"
+                value={(dashboardStats.overview.totalUsers || 0).toLocaleString()}
+                icon="fa-users"
+                color="purple"
+              />
+              <StatCard
+                title="Products Listed"
+                value={(dashboardStats.overview.totalProducts || 0).toLocaleString()}
+                icon="fa-box"
+                color="yellow"
+              />
             </div>
 
-            {/* Top Products */}
-            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">Top Products</h3>
-              <div className="space-y-3">
-                {(dashboardStats.data.topProducts || []).map((product, index) => (
-                  <div key={product._id} className="flex justify-between items-center p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition">
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                        {index + 1}
-                      </span>
-                      <div>
-                        <p className="font-medium text-white">{product.name}</p>
-                        <p className="text-sm text-gray-400">{product.totalSold} sold</p>
+            {/* Detailed Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Orders */}
+              <div className="glass-panel rounded-2xl p-6 h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white font-display">Recent Activity</h3>
+                  <button className="text-xs font-bold text-primary hover:text-primary-light uppercase tracking-wider transition-colors">View All</button>
+                </div>
+                <div className="space-y-4">
+                  {(dashboardStats.recentOrders || []).map((order) => (
+                    <div key={order._id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group cursor-default">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border ${order.status === 'delivered' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                          order.status === 'processing' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                            'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                          }`}>
+                          <i className={`fas ${order.status === 'delivered' ? 'fa-check' :
+                            order.status === 'processing' ? 'fa-cog fa-spin' :
+                              'fa-clock'
+                            }`}></i>
+                        </div>
+                        <div>
+                          <p className="font-bold text-white text-sm">Order #{order.orderNumber}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {order.customer.firstName} {order.customer.lastName}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary text-sm">{formatCurrency(order.pricing.total)}</p>
+                        <p className="text-[10px] text-gray-500 font-mono mt-0.5 uppercase">{new Date(order.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <p className="font-medium text-[#D2C1B6]">{formatCurrency(product.revenue)}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Products */}
+              <div className="glass-panel rounded-2xl p-6 h-full">
+                <h3 className="text-xl font-bold text-white font-display mb-6">Top Performers</h3>
+                <div className="space-y-4">
+                  {(dashboardStats.topProducts || []).map((product, index) => (
+                    <div key={product._id} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all group">
+                      <div className="w-12 h-12 rounded-lg bg-black/40 flex items-center justify-center font-bold text-lg text-gray-500 border border-white/10 group-hover:text-primary transition-colors">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-white truncate group-hover:text-primary transition-colors">{product.name}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <i className="fas fa-shopping-bag text-[10px]"></i> {product.totalSold} sold
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-white">{formatCurrency(product.revenue)}</p>
+                        <span className="text-[10px] text-green-400 font-bold uppercase tracking-wider">Revenue</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
         ) : (
-          <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700 text-center">
-            <i className="fas fa-chart-line text-gray-400 text-4xl mb-4"></i>
-            <h3 className="text-xl font-bold text-white mb-2">No Analytics Data</h3>
-            <p className="text-gray-400">Analytics data is not available at the moment.</p>
+          <div className="glass-panel rounded-2xl p-12 text-center border-dashed border-white/10">
+            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i className="fas fa-chart-bar text-4xl text-gray-600"></i>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">No Data Available</h3>
+            <p className="text-gray-400">There is no analytics data for the selected period.</p>
           </div>
         )
       )}
 
       {/* Sales Tab */}
       {activeTab === 'sales' && salesData && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-slide-up">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <LineChart
-              data={salesData.salesData.map(item => ({
-                date: formatDate(item._id),
-                orders: item.orders,
-                revenue: item.revenue
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Orders Overview</h3>
+              <LineChart
+                data={salesData.salesData.map(item => ({
+                  date: formatDate(item._id),
+                  orders: item.orders,
+                  revenue: item.revenue
+                }))}
+                xKey="date"
+                yKey="orders"
+                title="Daily Orders"
+                color="#3B82F6"
+              />
+            </div>
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Revenue Trend</h3>
+              <AreaChart
+                data={salesData.salesData.map(item => ({
+                  date: formatDate(item._id),
+                  revenue: item.revenue
+                }))}
+                xKey="date"
+                yKey="revenue"
+                title="Daily Revenue"
+                color="#10B981"
+              />
+            </div>
+          </div>
+
+          <div className="glass-panel p-6 rounded-2xl max-w-lg mx-auto">
+            <h3 className="text-lg font-bold text-white mb-6 text-center">Order Status Distribution</h3>
+            <PieChart
+              data={salesData.salesByStatus.map(item => ({
+                name: item._id,
+                value: item.count
               }))}
-              xKey="date"
-              yKey="orders"
-              title="Orders Over Time"
-              color="#3B82F6"
-            />
-            <AreaChart
-              data={salesData.salesData.map(item => ({
-                date: formatDate(item._id),
-                revenue: item.revenue
-              }))}
-              xKey="date"
-              yKey="revenue"
-              title="Revenue Over Time"
-              color="#10B981"
+              dataKey="value"
+              nameKey="name"
+              title="Orders by Status"
             />
           </div>
-          
-          <PieChart
-            data={salesData.salesByStatus.map(item => ({
-              name: item._id,
-              value: item.count
-            }))}
-            dataKey="value"
-            nameKey="name"
-            title="Orders by Status"
-          />
         </div>
       )}
 
       {/* Products Tab */}
       {activeTab === 'products' && productData && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-slide-up">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <BarChart
-              data={productData.topProducts.slice(0, 10)}
-              xKey="name"
-              yKey="totalSold"
-              title="Top Selling Products"
-              color="#8B5CF6"
-            />
-            <PieChart
-              data={productData.productsByCategory}
-              dataKey="count"
-              nameKey="_id"
-              title="Products by Category"
-            />
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Top Selling Products</h3>
+              <BarChart
+                data={productData.topProducts.slice(0, 10)}
+                xKey="name"
+                yKey="totalSold"
+                title="Units Sold"
+                color="#8B5CF6"
+              />
+            </div>
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Category Distribution</h3>
+              <PieChart
+                data={productData.productsByCategory}
+                dataKey="count"
+                nameKey="_id"
+                title="Products by Category"
+              />
+            </div>
           </div>
 
           {/* Low Stock Alert */}
           {productData.lowStockProducts.length > 0 && (
-            <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <i className="fas fa-exclamation-triangle text-yellow-400"></i>
-                Low Stock Alert
+            <div className="glass-panel rounded-2xl p-6 border-l-4 border-l-yellow-500 bg-yellow-500/5">
+              <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center">
+                  <i className="fas fa-exclamation-triangle"></i>
+                </div>
+                Low Stock Alerts
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {productData.lowStockProducts.map((product) => (
-                  <div key={product._id} className="p-4 bg-yellow-600/20 border border-yellow-600/30 rounded-lg">
-                    <p className="font-medium text-white">{product.name}</p>
-                    <p className="text-sm text-gray-400">{product.categoryName}</p>
-                    <p className="text-sm font-medium text-yellow-400">
-                      Stock: {product.stock} units
-                    </p>
+                  <div key={product._id} className="p-4 bg-black/40 border border-white/5 rounded-xl hover:border-yellow-500/50 transition-colors">
+                    <p className="font-bold text-white mb-1 truncate">{product.name}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">{product.categoryName}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400">Remaining</span>
+                      <span className="text-lg font-bold text-yellow-400">{product.stock} units</span>
+                    </div>
+                    <div className="w-full bg-gray-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                      <div className="bg-yellow-500 h-full rounded-full" style={{ width: `${Math.min(product.stock * 10, 100)}%` }}></div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -432,52 +518,57 @@ const Analytics = () => {
 
       {/* Revenue Tab */}
       {activeTab === 'revenue' && revenueData && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-slide-up">
           {/* Monthly Comparison */}
-          <div className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4">Monthly Revenue Comparison</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <p className="text-sm text-gray-400">Current Month</p>
-                <p className="text-2xl font-bold text-green-400">
+          <div className="glass-panel rounded-2xl p-8">
+            <h3 className="text-xl font-bold text-white mb-8">Monthly Revenue Performance</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2">Current Month</p>
+                <p className="text-4xl font-bold text-green-400 font-display">
                   {formatCurrency(revenueData.monthlyComparison.current)}
                 </p>
               </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-400">Previous Month</p>
-                <p className="text-2xl font-bold text-gray-300">
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2">Previous Month</p>
+                <p className="text-4xl font-bold text-gray-300 font-display">
                   {formatCurrency(revenueData.monthlyComparison.previous)}
                 </p>
               </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-400">Growth Rate</p>
-                <p className={`text-2xl font-bold ${
-                  revenueData.monthlyComparison.growthRate >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}>
-                  {revenueData.monthlyComparison.growthRate >= 0 ? '+' : ''}
+              <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2">Growth Rate</p>
+                <div className={`text-4xl font-bold font-display flex items-center justify-center gap-2 ${revenueData.monthlyComparison.growthRate >= 0 ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                  <i className={`fas fa-caret-${revenueData.monthlyComparison.growthRate >= 0 ? 'up' : 'down'} text-2xl`}></i>
                   {revenueData.monthlyComparison.growthRate}%
-                </p>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <AreaChart
-              data={revenueData.revenueData.map(item => ({
-                date: formatDate(item._id),
-                revenue: item.revenue
-              }))}
-              xKey="date"
-              yKey="revenue"
-              title="Daily Revenue"
-              color="#F59E0B"
-            />
-            <PieChart
-              data={revenueData.revenueByCategory.filter(item => item._id)}
-              dataKey="revenue"
-              nameKey="_id"
-              title="Revenue by Category"
-            />
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Daily Revenue Breakdown</h3>
+              <AreaChart
+                data={revenueData.revenueData.map(item => ({
+                  date: formatDate(item._id),
+                  revenue: item.revenue
+                }))}
+                xKey="date"
+                yKey="revenue"
+                title="Revenue"
+                color="#F59E0B"
+              />
+            </div>
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Revenue Sources (Categories)</h3>
+              <PieChart
+                data={revenueData.revenueByCategory.filter(item => item._id)}
+                dataKey="revenue"
+                nameKey="_id"
+                title="Revenue by Category"
+              />
+            </div>
           </div>
         </div>
       )}

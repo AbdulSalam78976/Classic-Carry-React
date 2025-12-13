@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { heroImageAPI } from '../services/heroImageAPI';
 import { useNotification } from '../contexts/NotificationContext';
-
 import API_URL from '../config/api';
 
 const HeroImageForm = () => {
@@ -42,7 +41,6 @@ const HeroImageForm = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
       showNotification('Image size must be less than 10MB', 'error');
       return;
@@ -63,7 +61,7 @@ const HeroImageForm = () => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Upload failed');
       }
@@ -108,89 +106,137 @@ const HeroImageForm = () => {
   };
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">
-          {id ? 'Edit Hero Image' : 'Add Hero Image'}
-        </h1>
+    <div className="max-w-3xl mx-auto animate-fade-in">
+      <div className="mb-8 flex items-center gap-4">
+        <button
+          onClick={() => navigate('/hero-images')}
+          className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors border border-white/5"
+        >
+          <i className="fas fa-arrow-left"></i>
+        </button>
+        <div>
+          <h1 className="text-3xl font-bold text-white font-display">
+            {id ? 'Edit Hero Image' : 'Add Hero Image'}
+          </h1>
+          <p className="text-gray-400">Configure visual slider content</p>
+        </div>
       </div>
 
-      <div className="bg-gray-800 rounded-lg shadow-lg p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="glass-panel p-8 rounded-2xl relative overflow-hidden">
+        {/* Background Decorative Blob */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+        <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Hero Image *
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">
+              Hero Banner Image <span className="text-red-400">*</span>
             </label>
+
             <div className="space-y-4">
+              {/* Upload Area */}
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="hero-upload"
+                />
+                <label
+                  htmlFor="hero-upload"
+                  className={`border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-primary/50 hover:bg-white/5 transition-all group ${imagePreview ? 'hidden' : 'block'}`}
+                >
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <i className="fas fa-cloud-upload-alt text-2xl text-gray-400 group-hover:text-primary"></i>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-gray-300">Click to upload banner</p>
+                    <p className="text-xs text-gray-500 mt-1">1920x1080px recommended • Max 10MB</p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Preview Area */}
               {imagePreview && (
-                <div className="relative w-full h-64 rounded-lg overflow-hidden">
+                <div className="relative group rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-64 object-cover object-center"
                   />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm gap-4">
+                    <label
+                      htmlFor="hero-upload"
+                      className="px-4 py-2 bg-white/10 hover:bg-primary hover:text-slate-900 text-white rounded-lg cursor-pointer backdrop-blur-md transition-all font-bold text-sm border border-white/20"
+                    >
+                      <i className="fas fa-sync-alt mr-2"></i> Change Image
+                    </label>
+                  </div>
                 </div>
               )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="block w-full text-sm text-gray-300
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-lg file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-[#D2C1B6] file:text-gray-900
-                  hover:file:bg-[#e2c9b8]
-                  file:cursor-pointer cursor-pointer"
-              />
             </div>
           </div>
 
-          {/* Order */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Order *
-            </label>
-            <input
-              type="number"
-              value={formData.order}
-              onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-[#D2C1B6]"
-              required
-              min="0"
-            />
-            <p className="text-gray-400 text-sm mt-1">Lower numbers appear first</p>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Order */}
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                Display Order <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                  className="glass-input w-full px-4 py-3 font-mono font-bold"
+                  required
+                  min="0"
+                />
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-500 text-sm">
+                  Lower shows first
+                </div>
+              </div>
+            </div>
 
-          {/* Status */}
-          <div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-5 h-5 text-[#D2C1B6] bg-gray-700 border-gray-600 rounded focus:ring-[#D2C1B6]"
-              />
-              <span className="text-gray-300">Active</span>
-            </label>
+            {/* Status */}
+            <div>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                Status
+              </label>
+              <label className="flex items-center gap-4 p-3 rounded-xl glass-card border-white/5 cursor-pointer hover:bg-white/5 transition-colors h-[50px]">
+                <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 flex items-center ${formData.isActive ? 'bg-green-500' : 'bg-gray-600'}`}>
+                  <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform duration-300 ${formData.isActive ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="hidden"
+                />
+                <span className={`font-bold ${formData.isActive ? 'text-green-400' : 'text-gray-400'}`}>
+                  {formData.isActive ? 'Active & Visible' : 'Hidden'}
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-[#D2C1B6] text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-[#e2c9b8] transition disabled:opacity-50"
-            >
-              {loading ? 'Saving...' : id ? 'Update Hero Image' : 'Create Hero Image'}
-            </button>
+          <div className="flex justify-end gap-4 pt-4 border-t border-white/5">
             <button
               type="button"
               onClick={() => navigate('/hero-images')}
-              className="bg-gray-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-600 transition"
+              className="px-6 py-3 rounded-xl font-bold bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition border border-white/5"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary text-slate-900 px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {loading ? <div className="spinner w-4 h-4 border-slate-900 border-b-transparent"></div> : <i className="fas fa-save"></i>}
+              {id ? 'Update Banner' : 'Publish Banner'}
             </button>
           </div>
         </form>

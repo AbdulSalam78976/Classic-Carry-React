@@ -56,8 +56,6 @@ const Reviews = () => {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
     });
   };
 
@@ -65,152 +63,136 @@ const Reviews = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fas fa-star ${
-          i < rating ? 'text-yellow-400' : 'text-gray-300'
-        }`}
+        className={`fas fa-star text-sm ${i < rating ? 'text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.5)]' : 'text-gray-700'
+          }`}
       />
     ));
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Reviews Management</h1>
-        
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2 font-display">Reviews</h1>
+          <p className="text-gray-400">Moderate customer reviews and ratings</p>
+        </div>
+
         {/* Filter Buttons */}
-        <div className="flex space-x-2">
-          <button
-            onClick={() => {
-              setFilter('all');
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-md font-medium ${
-              filter === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            All Reviews
-          </button>
-          <button
-            onClick={() => {
-              setFilter('approved');
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-md font-medium ${
-              filter === 'approved'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Approved
-          </button>
-          <button
-            onClick={() => {
-              setFilter('pending');
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-md font-medium ${
-              filter === 'pending'
-                ? 'bg-yellow-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Pending
-          </button>
+        <div className="glass-panel p-1.5 rounded-xl inline-flex gap-1">
+          {['all', 'approved', 'pending'].map((status) => (
+            <button
+              key={status}
+              onClick={() => {
+                setFilter(status);
+                setCurrentPage(1);
+              }}
+              className={`px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 capitalize ${filter === status
+                ? 'bg-primary text-slate-900 shadow-lg shadow-primary/20'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+            >
+              {status === 'all' ? 'All Reviews' : status}
+            </button>
+          ))}
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+          <div className="spinner"></div>
         </div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-12">
-          <i className="fas fa-comment-alt text-6xl text-gray-300 mb-4"></i>
-          <h3 className="text-xl font-medium text-gray-900 mb-2">No Reviews Found</h3>
-          <p className="text-gray-600">
-            {filter === 'pending' 
-              ? 'No pending reviews to moderate.' 
-              : 'No reviews available.'}
+        <div className="text-center py-24 glass-panel rounded-2xl border-dashed border-white/10">
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i className="fas fa-star text-4xl text-gray-600"></i>
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">No Reviews Found</h3>
+          <p className="text-gray-500">
+            {filter === 'pending'
+              ? 'Great job! No pending reviews to moderate.'
+              : 'There are no reviews matching your criteria.'}
           </p>
         </div>
       ) : (
         <>
           {/* Reviews List */}
-          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+          <div className="glass-panel rounded-2xl overflow-hidden p-1">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="w-full">
+                <thead className="bg-black/20">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Product & User
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Product
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rating & Review
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Customer
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      Review
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-white/5">
                   {reviews.map((review) => (
-                    <tr key={review._id} className="hover:bg-gray-50">
+                    <tr key={review._id} className="table-row-hover group">
                       <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <img
-                            src={review.product?.mainImage || '/placeholder-image.jpg'}
-                            alt={review.product?.name}
-                            className="h-12 w-12 rounded-lg object-cover mr-4"
-                          />
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {review.product?.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              by {review.user?.name} ({review.user?.email})
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              Order #{review.order?.orderNumber}
-                            </div>
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 bg-white/5 flex-shrink-0">
+                            <img
+                              src={review.product?.mainImage || '/placeholder.jpg'}
+                              alt={review.product?.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="max-w-[150px]">
+                            <p className="text-sm font-bold text-white truncate text-ellipsis">{review.product?.name}</p>
+                            <p className="text-xs text-primary mt-1">Order #{review.order?.orderNumber}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
+                        <p className="text-sm font-bold text-gray-200">{review.user?.name}</p>
+                        <p className="text-xs text-gray-500 font-mono">{review.user?.email}</p>
+                        {review.isVerified && (
+                          <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold border border-blue-500/20">
+                            <i className="fas fa-check-circle text-[9px]"></i> Verified Buyer
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 w-1/3">
                         <div className="space-y-2">
-                          <div className="flex items-center space-x-1">
-                            {renderStars(review.rating)}
-                            <span className="text-sm text-gray-600 ml-2">
-                              ({review.rating}/5)
+                          <div className="flex items-center gap-2">
+                            <div className="flex">{renderStars(review.rating)}</div>
+                            <span className="text-xs font-bold text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {review.title}
-                          </div>
-                          <div className="text-sm text-gray-600 max-w-xs truncate">
-                            {review.comment}
-                          </div>
+
+                          {review.title && <p className="text-sm font-bold text-white">{review.title}</p>}
+                          <p className="text-sm text-gray-400 leading-relaxed max-h-20 overflow-y-auto custom-scrollbar">
+                            "{review.comment}"
+                          </p>
+
                           {/* Review Images */}
                           {review.images && review.images.length > 0 && (
-                            <div className="flex gap-1 mt-2">
+                            <div className="flex gap-2 mt-2">
                               {review.images.slice(0, 3).map((image, index) => (
-                                <img
-                                  key={index}
-                                  src={image}
-                                  alt={`Review image ${index + 1}`}
-                                  className="w-8 h-8 object-cover rounded border cursor-pointer hover:opacity-80"
-                                  onClick={() => window.open(image, '_blank')}
-                                />
+                                <a key={index} href={image} target="_blank" rel="noopener noreferrer" className="block w-10 h-10 rounded-lg overflow-hidden border border-white/10 hover:border-primary transition-colors">
+                                  <img
+                                    src={image}
+                                    alt="Review attachment"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </a>
                               ))}
                               {review.images.length > 3 && (
-                                <div className="w-8 h-8 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
+                                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xs font-bold text-white border border-white/10">
                                   +{review.images.length - 3}
                                 </div>
                               )}
@@ -218,42 +200,36 @@ const Reviews = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(review.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4">
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            review.isApproved
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
+                          className={`inline-flex px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${review.isApproved
+                            ? 'bg-green-500/20 text-green-400 border-green-500/20 shadow-green-500/10'
+                            : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/20 shadow-yellow-500/10'
+                            }`}
                         >
-                          {review.isApproved ? 'Approved' : 'Pending'}
+                          {review.isApproved ? 'Live' : 'Pending'}
                         </span>
-                        {review.isVerified && (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 ml-2">
-                            Verified
-                          </span>
-                        )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button
-                          onClick={() => handleApprovalToggle(review._id, review.isApproved)}
-                          className={`px-3 py-1 rounded text-xs font-medium ${
-                            review.isApproved
-                              ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                              : 'bg-green-100 text-green-800 hover:bg-green-200'
-                          }`}
-                        >
-                          {review.isApproved ? 'Disapprove' : 'Approve'}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteReview(review._id)}
-                          className="px-3 py-1 bg-red-100 text-red-800 hover:bg-red-200 rounded text-xs font-medium"
-                        >
-                          Delete
-                        </button>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleApprovalToggle(review._id, review.isApproved)}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${review.isApproved
+                              ? 'bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500 hover:text-slate-900 border border-yellow-500/20'
+                              : 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/20'
+                              }`}
+                            title={review.isApproved ? "Disapprove" : "Approve"}
+                          >
+                            <i className={`fas ${review.isApproved ? 'fa-ban' : 'fa-check'}`}></i>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReview(review._id)}
+                            className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-500/20"
+                            title="Delete Review"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -264,25 +240,25 @@ const Reviews = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 mt-6">
+            <div className="flex justify-center items-center gap-4 mt-8">
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition disabled:opacity-30 disabled:hover:bg-transparent"
               >
-                Previous
+                <i className="fas fa-chevron-left"></i>
               </button>
-              
-              <span className="px-4 py-2 text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              
+
+              <div className="px-4 py-2 glass-panel rounded-xl text-sm font-bold text-gray-300">
+                Page <span className="text-white">{currentPage}</span> of {totalPages}
+              </div>
+
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition disabled:opacity-30 disabled:hover:bg-transparent"
               >
-                Next
+                <i className="fas fa-chevron-right"></i>
               </button>
             </div>
           )}
