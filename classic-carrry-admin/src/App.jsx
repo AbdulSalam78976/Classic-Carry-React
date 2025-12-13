@@ -47,15 +47,15 @@ const AppContent = () => {
           {/* Animated background elements */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#D2C1B6]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#A68A6F]/10 rounded-full blur-2xl animate-pulse delay-75"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-2xl animate-pulse delay-75"></div>
           </div>
 
         {/* Logo/Brand */}
           <div className="mb-8 relative">
-            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-[#8B7355] to-[#A68A6F] rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform">
+            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-blue-600 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform">
               <div className="text-6xl">✨</div>
             </div>
-            <div className="absolute -inset-6 bg-gradient-to-r from-[#8B7355]/20 via-[#A68A6F]/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
+            <div className="absolute -inset-6 bg-gradient-to-r from-blue-600/20 via-blue-500/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
           </div>
 
           {/* Brand Name */}
@@ -94,7 +94,7 @@ const AppContent = () => {
               <defs>
                 <linearGradient id="adminGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#D2C1B6" />
-                  <stop offset="100%" stopColor="#A68A6F" />
+                  <stop offset="100%" stopColor="#3B82F6" />
                 </linearGradient>
               </defs>
             </svg>

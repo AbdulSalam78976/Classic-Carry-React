@@ -67,8 +67,8 @@ const AdminLayout = () => {
         <div className="p-6 border-b border-gray-700">
           <div className="flex items-center justify-between">
             {sidebarOpen && (
-              <h1 className="text-2xl text-white logo-font flex items-center gap-2">
-                {settings.appearance.siteName} <span>{settings.appearance.brandEmoji || '🛍️'}</span>
+              <h1 className="text-2xl text-white logo-font">
+                {settings.appearance.siteName}
               </h1>
             )}
             <button
@@ -137,8 +137,8 @@ const AdminLayout = () => {
             >
               <i className="fas fa-bars text-xl"></i>
             </button>
-            <h1 className="text-white text-lg logo-font flex items-center gap-2">
-              {settings.appearance.siteName} <span>{settings.appearance.brandEmoji || '🛍️'}</span>
+            <h1 className="text-white text-lg logo-font">
+              {settings.appearance.siteName}
             </h1>
             <div className="w-8"></div>
           </div>

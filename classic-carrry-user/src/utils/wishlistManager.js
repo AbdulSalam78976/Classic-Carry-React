@@ -1,5 +1,5 @@
 // Wishlist Manager - Local Storage Based
-const WISHLIST_KEY = 'classiccarrry_wishlist';
+const WISHLIST_KEY = 'dkart_wishlist';
 
 export const wishlistManager = {
   // Get all wishlist items
@@ -17,10 +17,10 @@ export const wishlistManager = {
   addToWishlist: (product) => {
     try {
       const wishlist = wishlistManager.getWishlist();
-      
+
       // Check if product already exists
       const exists = wishlist.some(item => item._id === product._id || item.id === product.id);
-      
+
       if (!exists) {
         wishlist.push({
           _id: product._id,
@@ -31,11 +31,11 @@ export const wishlistManager = {
           categoryName: product.categoryName,
           addedAt: new Date().toISOString()
         });
-        
+
         localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
         return { success: true, message: 'Added to wishlist' };
       }
-      
+
       return { success: false, message: 'Already in wishlist' };
     } catch (error) {
       console.error('Error adding to wishlist:', error);

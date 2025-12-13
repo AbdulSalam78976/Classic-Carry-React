@@ -12,8 +12,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [settings, setSettings] = useState({
-    siteName: 'Classic Carrry',
-    brandEmoji: '🛍️'
+    siteName: 'Classic Carrry'
   });
   const [resetData, setResetData] = useState({
     email: '',
@@ -45,8 +44,7 @@ const Login = () => {
           const data = await response.json();
           if (data.data) {
             setSettings({
-              siteName: data.data.siteName || 'Classic Carrry',
-              brandEmoji: data.data.brandEmoji || '🛍️'
+              siteName: data.data.siteName || 'Classic Carrry'
             });
           }
         }
@@ -140,8 +138,8 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                
-                <span className="text-5xl font-bold  text-white tracking-tight flex items-center gap-2" style={{ fontFamily: 'Satisfy, cursive' }}>
-                  {settings.siteName} <span>{settings.brandEmoji}</span>
+                <span className="text-5xl font-bold text-white tracking-tight" style={{ fontFamily: 'Satisfy, cursive' }}>
+                  {settings.siteName}
                 </span>
               </div>
            

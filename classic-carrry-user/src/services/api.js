@@ -3,7 +3,7 @@ import API_URL from '../config/api.js';
 // Helper function for API calls
 const apiCall = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
-  
+
   const config = {
     ...options,
     headers: {
@@ -29,19 +29,19 @@ export const productAPI = {
     const query = new URLSearchParams(params).toString();
     return apiCall(`/products${query ? `?${query}` : ''}`);
   },
-  
+
   getHot: async () => {
     return apiCall('/products/hot');
   },
-  
+
   getById: async (id) => {
     return apiCall(`/products/${id}`);
   },
-  
+
   getByCategory: async (slug) => {
     return apiCall(`/products/category/${slug}`);
   },
-  
+
   getCategories: async (productType) => {
     return apiCall(`/products/categories/${productType}`);
   },
@@ -53,15 +53,15 @@ export const categoryAPI = {
     const query = new URLSearchParams(params).toString();
     return apiCall(`/categories${query ? `?${query}` : ''}`);
   },
-  
+
   getFeatured: async () => {
     return apiCall('/categories?isFeatured=true');
   },
-  
+
   getFeaturedWithProducts: async () => {
     return apiCall('/categories/featured/with-products');
   },
-  
+
   getBySlug: async (slug) => {
     return apiCall(`/categories/${slug}`);
   },
@@ -75,11 +75,11 @@ export const orderAPI = {
       body: JSON.stringify(orderData),
     });
   },
-  
+
   getById: async (orderNumber) => {
     return apiCall(`/orders/${orderNumber}`);
   },
-  
+
   getMyOrders: async () => {
     return apiCall('/orders/myorders');
   },
@@ -93,18 +93,32 @@ export const userAPI = {
       body: JSON.stringify(userData),
     });
   },
-  
+
   login: async (credentials) => {
     return apiCall('/users/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
   },
-  
+
+  forgotPassword: async (email) => {
+    return apiCall('/users/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  resetPassword: async (token, password) => {
+    return apiCall(`/users/reset-password/${token}`, {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+  },
+
   getProfile: async () => {
     return apiCall('/users/profile');
   },
-  
+
   updateProfile: async (userData) => {
     return apiCall('/users/profile', {
       method: 'PUT',
@@ -117,7 +131,7 @@ export const userAPI = {
 export const uploadAPI = {
   uploadReviewImages: async (formData) => {
     const token = localStorage.getItem('token');
-    
+
     const response = await fetch(`${API_URL}/upload/review`, {
       method: 'POST',
       headers: {

@@ -24,7 +24,7 @@ const OrderSuccess = () => {
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-md mx-4 text-center relative overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-blue-50 opacity-50"></div>
-          
+
           {/* Emoji Confetti Animation */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {['🎉', '✨', '🎊', '⭐', '💫', '🌟', '🎈'].map((emoji, i) => (
@@ -42,7 +42,7 @@ const OrderSuccess = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Colorful Confetti Pieces */}
           <div className="absolute inset-0 pointer-events-none">
             {[...Array(30)].map((_, i) => {
@@ -77,9 +77,9 @@ const OrderSuccess = () => {
             <h1 className="font-display text-4xl font-bold text-gray-900 mb-4 animate-fade-in">
               Order Confirmed! 🎉
             </h1>
-            
+
             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              Thank you for choosing <span className="font-semibold text-[#8B7355]">Classic Carrry</span>!
+              Thank you for choosing <span className="font-semibold text-primary">dKart</span>!
             </p>
 
             {/* Check Icon Animation */}
@@ -96,7 +96,7 @@ const OrderSuccess = () => {
 
             {/* Progress Bar */}
             <div className="w-full bg-gray-200 rounded-full h-2 mb-4 overflow-hidden">
-              <div className="bg-gradient-to-r from-[#8B7355] to-[#A68A6F] h-2 rounded-full animate-progress"></div>
+              <div className="bg-gradient-to-r from-primary to-primary-light h-2 rounded-full animate-progress"></div>
             </div>
 
             <p className="text-sm text-gray-500">

@@ -152,7 +152,7 @@ const ReviewForm = ({ product, order, onReviewSubmitted, onCancel }) => {
             type="text"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B7355]"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="Summarize your experience"
             maxLength={100}
             required
@@ -169,7 +169,7 @@ const ReviewForm = ({ product, order, onReviewSubmitted, onCancel }) => {
           <textarea
             value={formData.comment}
             onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8B7355]"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             rows={4}
             placeholder="Share your detailed experience with this product"
             maxLength={1000}
@@ -239,7 +239,7 @@ const ReviewForm = ({ product, order, onReviewSubmitted, onCancel }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-[#8B7355] text-white py-2 px-4 rounded-md hover:bg-[#6B5744] transition disabled:opacity-50"
+            className="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition disabled:opacity-50"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Review'}
           </button>

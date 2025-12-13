@@ -56,21 +56,16 @@ export const BackendHealthProvider = ({ children }) => {
         <div className="text-center relative px-4">
           {/* Animated background elements */}
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#8B7355]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#A68A6F]/10 rounded-full blur-2xl animate-pulse delay-75"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary-light/10 rounded-full blur-2xl animate-pulse delay-75"></div>
           </div>
 
           {/* Logo/Brand */}
-          <div className="mb-8 relative">
-            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-[#8B7355] to-[#A68A6F] rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform">
-              <div className="text-6xl">✨</div>
-            </div>
-            <div className="absolute -inset-6 bg-gradient-to-r from-[#8B7355]/20 via-[#A68A6F]/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
-          </div>
+        
 
           {/* Brand Name */}
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Satisfy, cursive' }}>
-            Classic Carrry
+            dKart
           </h1>
           <p className="text-gray-600 text-lg mb-8">Premium Lifestyle Products</p>
 
@@ -103,8 +98,8 @@ export const BackendHealthProvider = ({ children }) => {
               {/* Gradient definition */}
               <defs>
                 <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#8B7355" />
-                  <stop offset="100%" stopColor="#A68A6F" />
+                  <stop offset="0%" stopColor="var(--color-primary)" />
+                  <stop offset="100%" stopColor="var(--color-primary-light)" />
                 </linearGradient>
               </defs>
             </svg>

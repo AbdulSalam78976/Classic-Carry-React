@@ -90,21 +90,19 @@ const Reviews = () => {
         <div className="flex border-b border-gray-200 mb-8">
           <button
             onClick={() => setActiveTab('write')}
-            className={`px-6 py-3 font-medium ${
-              activeTab === 'write'
-                ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+            className={`px-6 py-3 font-medium ${activeTab === 'write'
+                ? 'text-primary border-b-2 border-primary'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Write Reviews
           </button>
           <button
             onClick={() => setActiveTab('my-reviews')}
-            className={`px-6 py-3 font-medium ${
-              activeTab === 'my-reviews'
-                ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+            className={`px-6 py-3 font-medium ${activeTab === 'my-reviews'
+                ? 'text-primary border-b-2 border-primary'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             My Reviews
           </button>
@@ -124,7 +122,7 @@ const Reviews = () => {
               <div>
                 {loading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B7355] mx-auto"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                     <p className="mt-2 text-gray-600">Loading products...</p>
                   </div>
                 ) : reviewableProducts.length === 0 ? (
@@ -168,7 +166,7 @@ const Reviews = () => {
                           </div>
                           <button
                             onClick={() => setSelectedProduct(item)}
-                            className="bg-[#8B7355] text-white px-4 py-2 rounded-md hover:bg-[#6B5744] transition"
+                            className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition"
                           >
                             Write Review
                           </button>
@@ -187,7 +185,7 @@ const Reviews = () => {
           <div>
             {reviewsLoading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B7355] mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="mt-2 text-gray-600">Loading your reviews...</p>
               </div>
             ) : userReviews.length === 0 ? (
@@ -236,13 +234,13 @@ const Reviews = () => {
                           <i className="fas fa-trash"></i>
                         </button>
                       </div>
-                      
+
                       <div>
                         <h4 className="font-medium text-gray-900 mb-2">
                           {review.title}
                         </h4>
                         <p className="text-gray-700 mb-3">{review.comment}</p>
-                        
+
                         {/* Review Images */}
                         {review.images && review.images.length > 0 && (
                           <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-3">

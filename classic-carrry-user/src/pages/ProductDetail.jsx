@@ -86,9 +86,11 @@ const ProductDetail = () => {
     try {
       setReviewsLoading(true);
       const response = await reviewAPI.getProductReviews(productId, { limit: 5 });
-      setReviews(response.data.reviews);
+      const reviewsData = response.reviews || [];
+      setReviews(reviewsData);
     } catch (error) {
       console.error('Error fetching reviews:', error);
+      setReviews([]);
     } finally {
       setReviewsLoading(false);
     }
@@ -130,7 +132,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#8B7355] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading product details...</p>
         </div>
       </div>
@@ -145,13 +147,13 @@ const ProductDetail = () => {
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-3">
           <nav className="flex items-center space-x-2 text-xs text-gray-600">
-            <Link to="/" className="hover:text-[#8B7355] transition-colors">Home</Link>
+            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
             <i className="fas fa-chevron-right text-xs"></i>
             {(product.category?.name || product.categoryName) && (
               <>
                 <Link 
                   to={`/category/${product.category?.slug || product.categorySlug || (product.category?.name || product.categoryName).toLowerCase().replace(/\s+/g, '-')}`} 
-                  className="hover:text-[#8B7355] transition-colors"
+                  className="hover:text-primary transition-colors"
                 >
                   {product.category?.name || product.categoryName}
                 </Link>
@@ -190,7 +192,7 @@ const ProductDetail = () => {
                 {/* Image Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   {product.tag && (
-                    <span className="bg-[#8B7355] text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                       {product.tag}
                     </span>
                   )}
@@ -216,8 +218,8 @@ const ProductDetail = () => {
                       onClick={() => setMainImage(img)}
                       className={`aspect-square bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
                         mainImage === img 
-                          ? 'border-[#8B7355] ring-2 ring-[#8B7355] ring-opacity-30' 
-                          : 'border-gray-200 hover:border-[#8B7355]'
+                          ? 'border-primary ring-2 ring-primary ring-opacity-30' 
+                          : 'border-gray-200 hover:border-primary'
                       }`}
                     >
                       <img 
@@ -258,7 +260,7 @@ const ProductDetail = () => {
                 {/* Price & Stock */}
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <div className="text-3xl font-bold text-[#8B7355]">
+                    <div className="text-3xl font-bold text-primary">
                       Rs {formatPrice(product.price)}
                     </div>
                     {product.originalPrice && product.originalPrice > product.price && (
@@ -281,7 +283,7 @@ const ProductDetail = () => {
               </div>
 
               {/* Description Preview */}
-              <p className="text-base text-gray-600 leading-relaxed border-l-4 border-[#8B7355] pl-4">
+              <p className="text-base text-gray-600 leading-relaxed border-l-4 border-primary pl-4">
                 {product.shortDescription || product.description || `Premium quality product from ${settings.appearance.siteName}.`}
               </p>
 
@@ -290,7 +292,7 @@ const ProductDetail = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-base font-semibold text-gray-900">
-                      Color: <span className="text-[#8B7355]">{selectedColor}</span>
+                      Color: <span className="text-primary">{selectedColor}</span>
                     </h3>
                     <span className="text-xs text-gray-500">{product.colors.length} options</span>
                   </div>
@@ -301,8 +303,8 @@ const ProductDetail = () => {
                         onClick={() => setSelectedColor(color)}
                         className={`relative w-12 h-12 rounded-full border-3 transition-all duration-300 transform hover:scale-110 ${
                           selectedColor === color
-                            ? 'border-[#8B7355] ring-4 ring-[#8B7355] ring-opacity-20 scale-110'
-                            : 'border-gray-300 hover:border-[#8B7355]'
+                            ? 'border-primary ring-4 ring-primary ring-opacity-20 scale-110'
+                            : 'border-gray-300 hover:border-primary'
                         }`}
                         style={{ backgroundColor: getColorValue(color) }}
                         title={color}
@@ -323,7 +325,7 @@ const ProductDetail = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-base font-semibold text-gray-900">
-                      Size: <span className="text-[#8B7355]">{selectedSize}</span>
+                      Size: <span className="text-primary">{selectedSize}</span>
                     </h3>
                     <span className="text-xs text-gray-500">{product.sizes.length} options</span>
                   </div>
@@ -334,8 +336,8 @@ const ProductDetail = () => {
                         onClick={() => setSelectedSize(size)}
                         className={`px-4 py-2 rounded-lg border-2 font-semibold transition-all duration-300 transform hover:scale-105 ${
                           selectedSize === size
-                            ? 'border-[#8B7355] bg-[#8B7355] text-white'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-[#8B7355]'
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-primary'
                         }`}
                       >
                         {size}
@@ -353,7 +355,7 @@ const ProductDetail = () => {
                   <div className="flex items-center gap-3 max-w-xs">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border-2 border-gray-200 hover:border-[#8B7355] hover:bg-[#8B7355] hover:text-white text-gray-600 transition-all duration-200 font-bold shadow-sm"
+                      className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary hover:text-white text-gray-600 transition-all duration-200 font-bold shadow-sm"
                     >
                       <i className="fas fa-minus text-sm"></i>
                     </button>
@@ -362,13 +364,13 @@ const ProductDetail = () => {
                         type="number"
                         value={quantity}
                         onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-full h-10 text-center text-lg font-bold bg-white border-2 border-gray-200 text-gray-900 rounded-lg focus:outline-none focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20"
+                        className="w-full h-10 text-center text-lg font-bold bg-white border-2 border-gray-200 text-gray-900 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20"
                         min="1"
                       />
                     </div>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border-2 border-gray-200 hover:border-[#8B7355] hover:bg-[#8B7355] hover:text-white text-gray-600 transition-all duration-200 font-bold shadow-sm"
+                      className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border-2 border-gray-200 hover:border-primary hover:bg-primary hover:text-white text-gray-600 transition-all duration-200 font-bold shadow-sm"
                     >
                       <i className="fas fa-plus text-sm"></i>
                     </button>
@@ -383,7 +385,7 @@ const ProductDetail = () => {
                     className={`group relative px-6 py-3 rounded-xl font-bold text-base transition-all duration-300 shadow-lg overflow-hidden ${
                       isAdding
                         ? 'bg-green-600 text-white'
-                        : 'bg-gray-900 text-white hover:bg-[#8B7355] transform hover:scale-105'
+                        : 'bg-gray-900 text-white hover:bg-primary transform hover:scale-105'
                     }`}
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
@@ -403,7 +405,7 @@ const ProductDetail = () => {
 
                   <button
                     onClick={handleBuyNow}
-                    className="px-6 py-3 rounded-xl font-bold text-base bg-[#8B7355] text-white hover:bg-[#6B5744] transform hover:scale-105 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+                    className="px-6 py-3 rounded-xl font-bold text-base bg-primary text-white hover:bg-primary-dark transform hover:scale-105 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
                   >
                     <i className="fas fa-bolt"></i>
                     Buy Now
@@ -424,7 +426,7 @@ const ProductDetail = () => {
                   onClick={() => setActiveTab('description')}
                   className={`px-6 py-4 font-semibold transition-colors ${
                     activeTab === 'description'
-                      ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+                      ? 'text-primary border-b-2 border-primary'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -435,7 +437,7 @@ const ProductDetail = () => {
                   onClick={() => setActiveTab('features')}
                   className={`px-6 py-4 font-semibold transition-colors ${
                     activeTab === 'features'
-                      ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+                      ? 'text-primary border-b-2 border-primary'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -446,7 +448,7 @@ const ProductDetail = () => {
                   onClick={() => setActiveTab('reviews')}
                   className={`px-6 py-4 font-semibold transition-colors ${
                     activeTab === 'reviews'
-                      ? 'text-[#8B7355] border-b-2 border-[#8B7355]'
+                      ? 'text-primary border-b-2 border-primary'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -484,7 +486,7 @@ const ProductDetail = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(product.features || ['Premium Quality', 'Durable Material', 'Expert Craftsmanship']).map((feature, index) => (
                     <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                      <i className="fas fa-check-circle text-[#8B7355] text-lg"></i>
+                      <i className="fas fa-check-circle text-primary text-lg"></i>
                       <span className="text-gray-700 font-medium">{feature}</span>
                     </div>
                   ))}
@@ -499,7 +501,7 @@ const ProductDetail = () => {
                       <div className="bg-gray-50 rounded-xl p-6">
                         <div className="flex items-center gap-6">
                           <div className="text-center">
-                            <div className="text-4xl font-bold text-[#8B7355] mb-2">
+                            <div className="text-4xl font-bold text-primary mb-2">
                               {(product.averageRating || 0).toFixed(1)}
                             </div>
                             <StarRating rating={product.averageRating || 0} size="lg" readonly />
@@ -515,7 +517,7 @@ const ProductDetail = () => {
                                   <span className="text-sm font-medium w-8">{rating}★</span>
                                   <div className="flex-1 bg-gray-200 rounded-full h-2">
                                     <div
-                                      className="bg-[#8B7355] h-2 rounded-full"
+                                      className="bg-primary h-2 rounded-full"
                                       style={{
                                         width: `${product.totalReviews > 0 
                                           ? (product.ratingDistribution[rating] / product.totalReviews) * 100 
@@ -536,7 +538,7 @@ const ProductDetail = () => {
                       {/* Reviews List */}
                       {reviewsLoading ? (
                         <div className="text-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B7355] mx-auto"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                           <p className="mt-2 text-gray-600">Loading reviews...</p>
                         </div>
                       ) : reviews.length > 0 ? (
@@ -549,7 +551,7 @@ const ProductDetail = () => {
                             <div className="text-center pt-4">
                               <button
                                 onClick={() => fetchReviews(product._id)}
-                                className="text-[#8B7355] hover:text-[#6B5744] font-semibold"
+                                className="text-primary hover:text-primary-dark font-semibold"
                               >
                                 Load More Reviews
                               </button>
@@ -586,7 +588,7 @@ const ProductDetail = () => {
                 {product.categorySlug && (
                   <Link 
                     to={`/category/${product.categorySlug}`}
-                    className="text-[#8B7355] hover:text-[#6B5744] font-semibold flex items-center gap-2"
+                    className="text-primary hover:text-primary-dark font-semibold flex items-center gap-2"
                   >
                     View All
                     <i className="fas fa-arrow-right"></i>
@@ -611,14 +613,14 @@ const ProductDetail = () => {
                     </div>
                     <div className="p-4">
                       <p className="text-gray-500 text-xs mb-1">{relatedProduct.categoryName}</p>
-                      <h3 className="text-gray-900 font-semibold mb-2 line-clamp-2 group-hover:text-[#8B7355] transition">
+                      <h3 className="text-gray-900 font-semibold mb-2 line-clamp-2 group-hover:text-primary transition">
                         {relatedProduct.name}
                       </h3>
                       <div className="flex items-center justify-between">
-                        <span className="text-[#8B7355] font-bold text-lg">
+                        <span className="text-primary font-bold text-lg">
                           Rs {formatPrice(relatedProduct.price)}
                         </span>
-                        <i className="fas fa-arrow-right text-[#8B7355] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        <i className="fas fa-arrow-right text-primary opacity-0 group-hover:opacity-100 transition-opacity"></i>
                       </div>
                     </div>
                   </Link>

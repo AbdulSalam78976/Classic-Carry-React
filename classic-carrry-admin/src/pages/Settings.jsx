@@ -27,7 +27,8 @@ const Settings = () => {
   // Appearance Settings State
   const [appearanceSettings, setAppearanceSettings] = useState({
     siteName: 'Classic Carrry',
-    brandEmoji: '🛍️',
+    logoImage: '',
+    logoType: 'text',
     tagline: 'Premium Lifestyle Products',
     showNewsletter: true,
     showSocialMedia: true
@@ -44,6 +45,56 @@ const Settings = () => {
     enableCOD: true,
     enableOnlinePayment: false
   });
+
+  // Logo Upload Handler - handles file upload for brand logo
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showNotification('Please select a valid image file', 'error');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showNotification('Image size should be less than 2MB', 'error');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`${API_URL}/upload/logo`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setAppearanceSettings({
+          ...appearanceSettings,
+          logoImage: data.imageUrl
+        });
+        showNotification('Logo uploaded successfully', 'success');
+      } else {
+        showNotification(data.message || 'Failed to upload logo', 'error');
+      }
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      showNotification('Failed to upload logo', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchSettings();
@@ -408,19 +459,112 @@ const Settings = () => {
                   className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-[#D2C1B6] focus:outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-gray-300 mb-2">
-                  <i className="fas fa-smile mr-2"></i>Brand Emoji
-                </label>
-                <input
-                  type="text"
-                  value={appearanceSettings.brandEmoji}
-                  onChange={(e) => setAppearanceSettings({...appearanceSettings, brandEmoji: e.target.value})}
-                  className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-[#D2C1B6] focus:outline-none"
-                  placeholder="🛍️"
-                  maxLength="2"
-                />
+
+            </div>
+
+            {/* Logo Management Section */}
+            <div className="border-t border-gray-700 pt-6">
+              <h3 className="text-lg font-semibold text-white mb-4">
+                <i className="fas fa-image mr-2"></i>Brand Logo
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Logo Type Selector */}
+                <div>
+                  <label className="block text-gray-300 mb-2">Logo Display Type</label>
+                  <select
+                    value={appearanceSettings.logoType}
+                    onChange={(e) => setAppearanceSettings({...appearanceSettings, logoType: e.target.value})}
+                    className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-[#D2C1B6] focus:outline-none"
+                  >
+                    <option value="text">Text Only</option>
+                    <option value="image">Image Only</option>
+                    <option value="both">Image + Text</option>
+                  </select>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Choose how you want your brand logo to be displayed
+                  </p>
+                </div>
+
+                {/* Logo Image Upload/URL - Show for image and both types */}
+                {(appearanceSettings.logoType === 'image' || appearanceSettings.logoType === 'both') && (
+                  <>
+                    <div>
+                      <label className="block text-gray-300 mb-2">Upload Logo Image</label>
+                      <div className="flex gap-3">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                          id="logo-upload"
+                        />
+                        <label
+                          htmlFor="logo-upload"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors flex items-center gap-2"
+                        >
+                          <i className="fas fa-upload"></i>
+                          Upload Logo
+                        </label>
+                        <span className="text-gray-400 text-sm flex items-center">
+                          Recommended: 40x40px, PNG/JPG/SVG
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center text-gray-400">or</div>
+                    
+                    <div>
+                      <label className="block text-gray-300 mb-2">Logo Image URL</label>
+                      <input
+                        type="url"
+                        value={appearanceSettings.logoImage}
+                        onChange={(e) => setAppearanceSettings({...appearanceSettings, logoImage: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-[#D2C1B6] focus:outline-none"
+                        placeholder="https://example.com/logo.png"
+                      />
+                      <p className="text-gray-400 text-sm mt-1">
+                        Or enter the URL of your logo image. If no logo is provided, a default logo will be used.
+                      </p>
+                    </div>
+                  </>
+                )}
+                
+                {/* Logo Preview */}
+                <div className="mt-3 p-4 bg-gray-700 rounded-lg">
+                  <p className="text-gray-300 text-sm mb-3">Preview:</p>
+                  <div className="flex items-center gap-3 justify-center">
+                    {/* Show image for 'image' and 'both' types */}
+                    {(appearanceSettings.logoType === 'image' || appearanceSettings.logoType === 'both') && (
+                      <img 
+                        src={appearanceSettings.logoImage || '/default-logo.svg'} 
+                        alt="Logo Preview"
+                        className="h-10 w-10 object-contain bg-white rounded p-1"
+                        onError={(e) => {
+                          if (e.target.src !== '/default-logo.svg') {
+                            e.target.src = '/default-logo.svg';
+                          }
+                        }}
+                      />
+                    )}
+                    
+                    {/* Show text for 'text' and 'both' types */}
+                    {(appearanceSettings.logoType === 'text' || appearanceSettings.logoType === 'both') && (
+                      <span className="text-white font-bold text-xl" style={{ fontFamily: 'Satisfy, cursive' }}>
+                        {appearanceSettings.siteName}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-400 text-xs mt-2 text-center">
+                    {appearanceSettings.logoType === 'text' && 'Text only'}
+                    {appearanceSettings.logoType === 'image' && (appearanceSettings.logoImage ? 'Custom logo only' : 'Default logo only')}
+                    {appearanceSettings.logoType === 'both' && (appearanceSettings.logoImage ? 'Custom logo + text' : 'Default logo + text')}
+                  </p>
+                </div>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
               <div>
                 <label className="block text-gray-300 mb-2">
                   <i className="fas fa-tag mr-2"></i>Tagline
@@ -432,7 +576,7 @@ const Settings = () => {
                   className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-[#D2C1B6] focus:outline-none"
                 />
               </div>
-            </div>
+              </div>
 
             <div className="border-t border-gray-700 pt-6">
               <h3 className="text-lg font-semibold text-white mb-4">Display Options</h3>

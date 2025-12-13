@@ -36,7 +36,7 @@ const Wishlist = () => {
               {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
             </p>
           </div>
-          
+
           {wishlist.length > 0 && (
             <button
               onClick={handleClearAll}
@@ -58,7 +58,7 @@ const Wishlist = () => {
             </p>
             <Link
               to="/"
-              className="inline-block bg-[#8B7355] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#6B5744] transition"
+              className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-dark transition"
             >
               Continue Shopping
             </Link>

@@ -249,7 +249,7 @@ const CategoryPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <i className="fas fa-spinner fa-spin text-4xl text-[#8B7355] mb-4"></i>
+          <i className="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -263,7 +263,7 @@ const CategoryPage = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Category Not Found</h2>
           <p className="text-gray-600 mb-2">Slug: {slug}</p>
           <p className="text-gray-500 text-sm mb-6">Please check the browser console for more details.</p>
-          <Link to="/" className="text-[#8B7355] hover:text-[#6B5744] underline">
+          <Link to="/" className="text-primary hover:text-primary-dark underline">
             Return to Home
           </Link>
         </div>
@@ -278,15 +278,15 @@ const CategoryPage = () => {
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-              <Link to="/" className="hover:text-[#8B7355] transition">Home</Link>
+              <Link to="/" className="hover:text-primary transition">Home</Link>
               <i className="fas fa-chevron-right text-xs"></i>
-              <span className="text-[#8B7355]">{category.name}</span>
+              <span className="text-primary">{category.name}</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               {category.name}
             </h1>
             <p className="text-gray-600">
-              <span className="text-[#8B7355] font-semibold">{products.length}</span> products available
+              <span className="text-primary font-semibold">{products.length}</span> products available
             </p>
           </div>
         </div>
@@ -339,7 +339,7 @@ const CategoryPage = () => {
               </p>
               <Link
                 to="/"
-                className="inline-block bg-[#8B7355] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#6B5744] transition-all duration-300 transform hover:scale-105"
+                className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-medium hover:bg-primary-dark transition-all duration-300 transform hover:scale-105"
               >
                 <i className="fas fa-home mr-2"></i>
                 Back to Home

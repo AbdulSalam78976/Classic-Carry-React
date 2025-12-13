@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { productAPI, orderAPI, userAPI } from '../services/api';
 import { analyticsAPI } from '../services/analyticsAPI';
 import { useSettings } from '../contexts/SettingsContext';
-import AnalyticsTest from '../components/AnalyticsTest';
+
 
 const Dashboard = () => {
   const { settings } = useSettings();
@@ -85,7 +85,7 @@ const Dashboard = () => {
         })),
         ...users.slice(0, 2).map(u => ({
           type: 'user',
-          message: `New user registered: ${u.firstName} ${u.lastName}`,
+          message: `New user registered: ${u.name}`,
           time: u.createdAt,
           icon: 'fa-user-plus',
           color: 'blue'
@@ -459,8 +459,7 @@ const Dashboard = () => {
           </div>
         </Link>
       </div>
-      {/* Analytics API Test - Remove this in production */}
-      <AnalyticsTest />
+
     </div>
   );
 };

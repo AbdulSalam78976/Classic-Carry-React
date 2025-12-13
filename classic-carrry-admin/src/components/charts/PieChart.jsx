@@ -1,11 +1,11 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-const COLORS = ['#8B7355', '#A68A6F', '#D2C1B6', '#6B5744', '#F5F1ED', '#E8DDD4'];
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
 const CustomPieChart = ({ data, dataKey, nameKey, title, height = 300 }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+      <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
@@ -24,10 +24,11 @@ const CustomPieChart = ({ data, dataKey, nameKey, title, height = 300 }) => {
           </Pie>
           <Tooltip 
             contentStyle={{
-              backgroundColor: '#fff',
-              border: '1px solid #e0e0e0',
+              backgroundColor: '#1F2937',
+              border: '1px solid #374151',
               borderRadius: '8px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+              color: '#F9FAFB'
             }}
           />
           <Legend />

@@ -19,7 +19,7 @@ const Notification = ({ message, type = 'success', onClose }) => {
     // Auto close after 5 seconds
     const timer = setTimeout(() => {
       handleClose();
-    }, 2000);
+    }, 5000);
 
     return () => {
       clearTimeout(timer);
@@ -31,92 +31,93 @@ const Notification = ({ message, type = 'success', onClose }) => {
     setIsVisible(false);
     setTimeout(() => {
       onClose();
-    }, 300);
+    }, 400); // Wait for exit animation
   };
 
-  const getStyles = () => {
-    const baseStyles = `
-      fixed top-4 right-4 z-50 max-w-md w-full
-      transform transition-all duration-300 ease-out
-      rounded-xl shadow-2xl overflow-hidden
-      ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
-    `;
-
+  const getConfig = () => {
     switch (type) {
       case 'success':
-        return `${baseStyles} bg-white border border-green-200`;
+        return {
+          icon: 'fa-check',
+          color: 'text-green-500',
+          bg: 'bg-green-500',
+          border: 'border-green-500',
+          lightBg: 'bg-green-50'
+        };
       case 'error':
-        return `${baseStyles} bg-white border border-red-200`;
+        return {
+          icon: 'fa-exclamation',
+          color: 'text-red-500',
+          bg: 'bg-red-500',
+          border: 'border-red-500',
+          lightBg: 'bg-red-50'
+        };
       case 'warning':
-        return `${baseStyles} bg-white border border-yellow-200`;
-      case 'info':
-        return `${baseStyles} bg-white border border-blue-200`;
+        return {
+          icon: 'fa-exclamation-triangle',
+          color: 'text-yellow-500',
+          bg: 'bg-yellow-500',
+          border: 'border-yellow-500',
+          lightBg: 'bg-yellow-50'
+        };
       default:
-        return `${baseStyles} bg-white border border-gray-200`;
+        return {
+          icon: 'fa-info',
+          color: 'text-primary',
+          bg: 'bg-primary',
+          border: 'border-primary',
+          lightBg: 'bg-blue-50'
+        };
     }
   };
 
-  const getIcon = () => {
-    switch (type) {
-      case 'success': return 'fa-check-circle text-green-500';
-      case 'error': return 'fa-exclamation-circle text-red-500';
-      case 'warning': return 'fa-exclamation-triangle text-yellow-500';
-      case 'info': return 'fa-info-circle text-blue-500';
-      default: return 'fa-bell text-gray-500';
-    }
-  };
-
-  const getProgressColor = () => {
-    switch (type) {
-      case 'success': return 'bg-green-500';
-      case 'error': return 'bg-red-500';
-      case 'warning': return 'bg-yellow-500';
-      case 'info': return 'bg-blue-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getBackgroundColor = () => {
-    switch (type) {
-      case 'success': return 'bg-green-50';
-      case 'error': return 'bg-red-50';
-      case 'warning': return 'bg-yellow-50';
-      case 'info': return 'bg-blue-50';
-      default: return 'bg-gray-50';
-    }
-  };
+  const config = getConfig();
 
   return (
-    <div className={getStyles()}>
-      <div className={`p-4 ${getBackgroundColor()}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0">
-              <i className={`fas ${getIcon()} text-2xl`}></i>
-            </div>
-            <span className="font-medium text-gray-800">{message}</span>
+    <div
+      className={`
+        fixed top-4 right-4 z-[9999] max-w-sm w-full
+        transform transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)
+        ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0'}
+      `}
+    >
+      <div className="relative bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
+        {/* Main Content */}
+        <div className="p-4 flex items-start gap-4">
+          {/* Icon Circle */}
+          <div className={`w-10 h-10 rounded-full ${config.lightBg} flex items-center justify-center flex-shrink-0 animate-bounce-subtle`}>
+            <i className={`fas ${config.icon} ${config.color} text-lg`}></i>
           </div>
-          <button 
+
+          {/* Text Content */}
+          <div className="flex-1 pt-1">
+            <h4 className={`text-sm font-bold ${config.color} mb-0.5 capitalize`}>
+              {type === 'info' ? 'Update' : type}
+            </h4>
+            <p className="text-sm text-gray-600 leading-relaxed font-medium">
+              {message}
+            </p>
+          </div>
+
+          {/* Close Button */}
+          <button
             onClick={handleClose}
-            className="
-              w-8 h-8 rounded-full 
-              hover:bg-black/10 
-              flex items-center justify-center
-              transition-colors duration-200
-              flex-shrink-0
-              ml-2
-            "
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
-            <i className="fas fa-times text-gray-600"></i>
+            <i className="fas fa-times"></i>
           </button>
         </div>
-      </div>
-      {/* Progress bar */}
-      <div className="h-1 bg-gray-200">
-        <div 
-          className={`h-full ${getProgressColor()} transition-all duration-100 ease-linear`}
-          style={{ width: `${progress}%` }}
-        ></div>
+
+        {/* Progress Bar */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-100/50">
+          <div
+            className={`h-full ${config.bg} transition-all duration-100 ease-linear`}
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        {/* Decorative Glow */}
+        <div className={`absolute -top-10 -right-10 w-20 h-20 ${config.bg} opacity-5 blur-2xl rounded-full pointer-events-none`}></div>
       </div>
     </div>
   );

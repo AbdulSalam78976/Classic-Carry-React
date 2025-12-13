@@ -1,27 +1,28 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const CustomBarChart = ({ data, xKey, yKey, title, color = '#8B7355', height = 300 }) => {
+const CustomBarChart = ({ data, xKey, yKey, title, color = '#8B5CF6', height = 300 }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+      <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis 
             dataKey={xKey} 
-            stroke="#666"
+            stroke="#9CA3AF"
             fontSize={12}
           />
           <YAxis 
-            stroke="#666"
+            stroke="#9CA3AF"
             fontSize={12}
           />
           <Tooltip 
             contentStyle={{
-              backgroundColor: '#fff',
-              border: '1px solid #e0e0e0',
+              backgroundColor: '#1F2937',
+              border: '1px solid #374151',
               borderRadius: '8px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+              color: '#F9FAFB'
             }}
           />
           <Legend />

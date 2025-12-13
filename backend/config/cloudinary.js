@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import { v2 as cloudinary } from 'cloudinary';
-import CloudinaryStoragePkg from 'multer-storage-cloudinary';
 import multer from 'multer';
 
 // Load environment variables
@@ -13,15 +12,31 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configure Cloudinary storage for multer
-const storage = new CloudinaryStoragePkg({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'classic-carrry',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 1000, height: 1000, crop: 'limit' }]
-  }
-});
+// Create a simple storage configuration using Cloudinary's upload_stream
+const storage = multer.memoryStorage();
+
+// Custom upload function
+const uploadToCloudinary = (buffer, options = {}) => {
+  return new Promise((resolve, reject) => {
+    const uploadOptions = {
+      folder: 'classic-carrry',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      transformation: [{ width: 1000, height: 1000, crop: 'limit' }],
+      ...options
+    };
+
+    cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    ).end(buffer);
+  });
+};
 
 const upload = multer({ 
   storage: storage,
@@ -47,4 +62,4 @@ export const deleteFromCloudinary = async (imageUrl) => {
   }
 };
 
-export { cloudinary, upload };
+export { cloudinary, upload, uploadToCloudinary };

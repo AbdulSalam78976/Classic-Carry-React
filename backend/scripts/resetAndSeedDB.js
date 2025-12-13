@@ -299,8 +299,8 @@ const resetAndSeedDB = async () => {
         id: 'BOOK001',
         name: 'Programming Fundamentals Book',
         price: 3999,
-        category: categories[4]._id,
-        categoryName: categories[4].name,
+        category: categories[0]._id,
+        categoryName: categories[0].name,
         mainImage: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500',
         images: ['https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500'],
         description: 'Comprehensive guide to programming fundamentals for beginners.',
@@ -316,11 +316,10 @@ const resetAndSeedDB = async () => {
 
     // Create Admin User
     console.log('\n👤 Creating admin user...');
-    const hashedPassword = await bcrypt.hash('admin123', 10);
     const adminUser = await User.create({
       name: 'Admin User',
       email: 'admin@classiccarrry.com',
-      password: hashedPassword,
+      password: 'admin123',
       role: 'admin',
       phone: '+92-300-1234567',
       address: {
@@ -337,32 +336,38 @@ const resetAndSeedDB = async () => {
 
     // Create Test Users
     console.log('\n👥 Creating test users...');
-    const testUsers = await User.insertMany([
-      {
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: await bcrypt.hash('password123', 10),
-        role: 'user',
-        phone: '+92-300-1111111',
-        isActive: true
-      },
-      {
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        password: await bcrypt.hash('password123', 10),
-        role: 'user',
-        phone: '+92-300-2222222',
-        isActive: true
-      },
-      {
-        name: 'Ali Ahmed',
-        email: 'ali@example.com',
-        password: await bcrypt.hash('password123', 10),
-        role: 'user',
-        phone: '+92-300-3333333',
-        isActive: true
-      }
-    ]);
+    const testUsers = [];
+    
+    const johnUser = await User.create({
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password123',
+      role: 'user',
+      phone: '+92-300-1111111',
+      isActive: true
+    });
+    testUsers.push(johnUser);
+    
+    const janeUser = await User.create({
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      password: 'password123',
+      role: 'user',
+      phone: '+92-300-2222222',
+      isActive: true
+    });
+    testUsers.push(janeUser);
+    
+    const aliUser = await User.create({
+      name: 'Ali Ahmed',
+      email: 'ali@example.com',
+      password: 'password123',
+      role: 'user',
+      phone: '+92-300-3333333',
+      isActive: true
+    });
+    testUsers.push(aliUser);
+    
     console.log(`✅ Created ${testUsers.length} test users`);
 
     // Create Sample Orders
@@ -520,9 +525,10 @@ const resetAndSeedDB = async () => {
     
     // Appearance Settings
     await AppearanceSettings.create({
-      siteName: 'Classic Carrry',
-      brandEmoji: '✨',
-      tagline: 'Premium Lifestyle Products',
+      siteName: 'dKart',
+      logoImage: '/assets/images/logo.png', // Use dkart logo by default
+      logoType: 'image', // Show image only by default
+      tagline: 'Dream Deals',
       showNewsletter: true,
       showSocialMedia: true
     });

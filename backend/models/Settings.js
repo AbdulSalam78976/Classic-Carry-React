@@ -31,7 +31,8 @@ const faqSchema = new mongoose.Schema({
 
 const appearanceSettingsSchema = new mongoose.Schema({
   siteName: { type: String, default: 'Classic Carrry' },
-  brandEmoji: { type: String, default: '✨' },
+  logoImage: { type: String, default: '' }, // URL to logo image
+  logoType: { type: String, enum: ['text', 'image', 'both'], default: 'text' },
   tagline: { type: String, default: 'Premium Lifestyle Products' },
   showNewsletter: { type: Boolean, default: true },
   showSocialMedia: { type: Boolean, default: true }

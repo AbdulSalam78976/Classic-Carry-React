@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { categoryAPI } from '../services/api';
 import { useSettings } from '../contexts/SettingsContext';
 import { useNotification } from '../contexts/NotificationContext';
+import Logo from './Logo';
 
 import API_URL from '../config/api';
 
@@ -14,7 +15,7 @@ const Footer = () => {
   const [subscribing, setSubscribing] = useState(false);
   const [categories, setCategories] = useState([]);
   const [contactInfo, setContactInfo] = useState({
-    email: 'classiccarrry@gmail.com',
+    email: 'dkart@gmail.com',
     phone: '+92 316 092 8206',
     whatsapp: '+92 316 092 8206',
     address: 'Pakistan',
@@ -50,7 +51,7 @@ const Footer = () => {
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!newsletterEmail || !newsletterEmail.includes('@')) {
       showNotification('Please enter a valid email address', 'error');
       return;
@@ -84,100 +85,72 @@ const Footer = () => {
 
   // NavLink active class function for footer links
   const getFooterLinkClass = ({ isActive }) => {
-    return `text-gray-600 transition ${
-      isActive ? 'text-[#8B7355] font-medium' : 'hover:text-[#8B7355]'
-    }`;
+    return `text-gray-400 hover:text-white transition-colors text-sm ${isActive ? 'text-white font-medium' : ''
+      }`;
   };
 
   return (
-    <>
-      {/* Footer Separator */}
-      <div className="w-full h-1 bg-gradient-to-r from-transparent via-[#8B7355] to-transparent"></div>
-      
-      {/* Footer */}
-      <footer className="bg-gray-50 border-t-4 border-[#8B7355]">
-        <div className="container mx-auto px-4 py-12 md:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-            {/* Brand Section */}
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Satisfy, cursive' }}>{settings.appearance.siteName}</span>
-                <span className="text-2xl">{settings.appearance.brandEmoji || '✨'}</span>
-              </div>
-              <p className="text-gray-600 mb-6 max-w-md leading-relaxed">
-                Premium lifestyle products crafted for the modern individual who values quality, style, and functionality.
-              </p>
-              <div className="flex space-x-4">
-                {contactInfo.whatsapp && (
-                  <a 
-                    href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="w-12 h-12 bg-green-500 border-2 border-green-500 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:shadow-lg hover:shadow-green-500/50 hover:-translate-y-1"
-                  >
-                    <i className="fab fa-whatsapp text-xl"></i>
-                  </a>
-                )}
-                {contactInfo.tiktok && (
-                  <a 
-                    href={contactInfo.tiktok} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="w-12 h-12 bg-black border-2 border-black rounded-full flex items-center justify-center text-white transition-all duration-300 hover:shadow-lg hover:shadow-black/50 hover:-translate-y-1"
-                  >
-                    <i className="fab fa-tiktok text-xl"></i>
-                  </a>
-                )}
-                {contactInfo.instagram && (
-                  <a 
-                    href={contactInfo.instagram} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="w-12 h-12 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 border-2 border-pink-500 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/50 hover:-translate-y-1"
-                  >
-                    <i className="fab fa-instagram text-xl"></i>
-                  </a>
-                )}
-              </div>
+    <footer className="bg-[#0B0F19] text-gray-400 pt-20 pb-10 border-t border-gray-800">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-16">
+          {/* Brand Section - Span 4 */}
+          <div className="lg:col-span-4">
+            <div className="mb-6">
+              <Logo size="large" linkTo="/" variant="light" />
             </div>
+            <p className="text-gray-400 mb-8 max-w-sm leading-relaxed text-sm">
+              Discover a world of premium products curated for your lifestyle.
+              Quality, style, and innovation in every detail.
+            </p>
+            <div className="flex space-x-3">
+              {contactInfo.whatsapp && (
+                <a
+                  href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 transition-all duration-300 hover:bg-[#25D366] hover:text-white hover:shadow-lg hover:shadow-[#25D366]/30 hover:-translate-y-1"
+                >
+                  <i className="fab fa-whatsapp text-lg"></i>
+                </a>
+              )}
+              {contactInfo.tiktok && (
+                <a
+                  href={contactInfo.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 transition-all duration-300 hover:bg-white hover:text-black hover:shadow-lg hover:shadow-white/20 hover:-translate-y-1"
+                >
+                  <i className="fab fa-tiktok text-lg"></i>
+                </a>
+              )}
+              {contactInfo.instagram && (
+                <a
+                  href={contactInfo.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 transition-all duration-300 hover:bg-pink-600 hover:text-white hover:shadow-lg hover:shadow-pink-600/30 hover:-translate-y-1"
+                >
+                  <i className="fab fa-instagram text-lg"></i>
+                </a>
+              )}
+            </div>
+          </div>
 
+          {/* Spacer */}
+          <div className="hidden lg:block lg:col-span-1"></div>
+
+          {/* Links Section - Span 7 */}
+          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Categories */}
             <div>
-              <h3 className="text-gray-900 font-semibold mb-4 text-lg">Categories</h3>
+              <h3 className="text-white font-bold mb-6 font-display text-lg">Collections</h3>
               <ul className="space-y-3">
-                <li>
-                  <NavLink 
-                    to="/" 
-                    className={({ isActive }) => 
-                      `transition duration-300 flex items-center group ${
-                        isActive 
-                          ? 'text-[#8B7355] font-medium' 
-                          : 'text-gray-600 hover:text-[#8B7355]'
-                      }`
-                    }
-                    end
-                  >
-                    <i className={`fas fa-chevron-right text-xs mr-2 text-[#8B7355] ${
-                      ({ isActive }) => isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                    } transition-opacity duration-300`}></i>
-                    Home
-                  </NavLink>
-                </li>
                 {categories.slice(0, 5).map((category) => (
                   <li key={category._id}>
-                    <NavLink 
-                      to={`/category/${category.slug}`} 
-                      className={({ isActive }) => 
-                        `transition duration-300 flex items-center group ${
-                          isActive 
-                            ? 'text-[#8B7355] font-medium' 
-                            : 'text-gray-600 hover:text-[#8B7355]'
-                        }`
-                      }
+                    <NavLink
+                      to={`/category/${category.slug}`}
+                      className="text-gray-400 hover:text-white transition-colors text-sm block py-1"
                     >
-                      <i className={`fas fa-chevron-right text-xs mr-2 text-[#8B7355] ${
-                        ({ isActive }) => isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                      } transition-opacity duration-300`}></i>
                       {category.name}
                     </NavLink>
                   </li>
@@ -185,111 +158,63 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* Contact Info */}
+            {/* Support */}
             <div>
-              <h3 className="text-gray-900 font-semibold mb-4 text-lg">Contact</h3>
-              <ul className="space-y-3 text-gray-600">
-                <li className="flex items-center space-x-3 group hover:text-[#8B7355] transition duration-300">
-                  <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center group-hover:bg-[#8B7355] group-hover:border-[#8B7355] group-hover:text-white transition duration-300">
-                    <i className="fas fa-phone text-sm"></i>
-                  </div>
-                  <span>{contactInfo.phone}</span>
-                </li>
-                <li className="flex items-center space-x-3 group hover:text-[#8B7355] transition duration-300">
-                  <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center group-hover:bg-[#8B7355] group-hover:border-[#8B7355] group-hover:text-white transition duration-300">
-                    <i className="fas fa-envelope text-sm"></i>
-                  </div>
-                  <span>{contactInfo.email}</span>
-                </li>
-                <li className="flex items-center space-x-3 group hover:text-[#8B7355] transition duration-300">
-                  <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center group-hover:bg-[#8B7355] group-hover:border-[#8B7355] group-hover:text-white transition duration-300">
-                    <i className="fas fa-map-marker-alt text-sm"></i>
-                  </div>
-                  <span>{contactInfo.address}</span>
-                </li>
+              <h3 className="text-white font-bold mb-6 font-display text-lg">Support</h3>
+              <ul className="space-y-3">
+                <li><NavLink to="/order-tracking" className={getFooterLinkClass}>Track Order</NavLink></li>
+                <li><NavLink to="/about#faq" className={getFooterLinkClass}>FAQs</NavLink></li>
+                <li><NavLink to="/about#contact" className={getFooterLinkClass}>Contact Us</NavLink></li>
+                <li><NavLink to="/terms" className={getFooterLinkClass}>Terms of Service</NavLink></li>
+                <li><NavLink to="/privacy" className={getFooterLinkClass}>Privacy Policy</NavLink></li>
               </ul>
             </div>
 
-            {/* Newsletter Section */}
+            {/* Newsletter */}
             <div>
-              <h3 className="text-gray-900 font-semibold mb-4 text-lg">Newsletter</h3>
-              <p className="text-gray-600 mb-4 text-sm">
-                Get the latest updates on new products and upcoming sales
+              <h3 className="text-white font-bold mb-6 font-display text-lg">Keep in Touch</h3>
+              <p className="text-gray-400 text-xs mb-4">
+                Join our newsletter for exclusive offers and new arrivals.
               </p>
-              
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-2">
+
+              <form onSubmit={handleNewsletterSubmit} className="relative">
                 <input
                   type="email"
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  placeholder="Email address"
                   required
                   disabled={subscribing}
-                  className="px-4 py-2.5 rounded-lg bg-white text-gray-900 border border-gray-300 focus:border-[#8B7355] focus:outline-none text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-4 pr-12 py-3 rounded-xl bg-gray-800/50 text-white border border-gray-700/50 focus:bg-gray-800 focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all text-sm outline-none placeholder-gray-500"
                 />
-                <button 
+                <button
                   type="submit"
                   disabled={subscribing}
-                  className="px-4 py-2.5 bg-[#8B7355] text-white rounded-lg font-medium hover:bg-[#6B5744] transition text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="absolute right-1 top-1 bottom-1 w-10 flex items-center justify-center bg-primary rounded-lg text-white hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
                 >
                   {subscribing ? (
-                    <>
-                      <i className="fas fa-spinner fa-spin"></i>
-                      <span>Subscribing...</span>
-                    </>
+                    <i className="fas fa-spinner fa-spin text-xs"></i>
                   ) : (
-                    <>
-                      <i className="fas fa-envelope"></i>
-                      <span>Subscribe</span>
-                    </>
+                    <i className="fas fa-arrow-right text-xs"></i>
                   )}
                 </button>
               </form>
             </div>
           </div>
+        </div>
 
-          <div className="border-t border-gray-200 mt-10 pt-8">
-            <div className="flex flex-wrap justify-center gap-6 mb-6">
-              <NavLink 
-                to="/about" 
-                className={getFooterLinkClass}
-              >
-                About Us
-              </NavLink>
-              <NavLink 
-                to="/about#faq" 
-                className={getFooterLinkClass}
-              >
-                FAQ
-              </NavLink>
-              <NavLink 
-                to="/about#contact" 
-                className={getFooterLinkClass}
-              >
-                Contact
-              </NavLink>
-              <NavLink 
-                to="/privacy" 
-                className={getFooterLinkClass}
-              >
-                Privacy Policy
-              </NavLink>
-              <NavLink 
-                to="/terms" 
-                className={getFooterLinkClass}
-              >
-                Terms & Conditions
-              </NavLink>
-            </div>
-            <p className="text-gray-500 text-center">
-              &copy; {currentYear} {settings.appearance.siteName}. All rights reserved.
-              <span className="mx-2">|</span>
-              Powered by <b><a href="https://abdulsalam78976.github.io/AppCrafters" target="_blank" rel="noopener noreferrer" className="text-[#8B7355] hover:text-[#6B5744]">AppCrafters</a></b>
-            </p>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-gray-500 text-xs">
+            &copy; {currentYear} {settings.appearance.siteName}. All rights reserved.
+          </p>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <span>Powered by</span>
+            <a href="https://abdulsalam78976.github.io/AppCrafters" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-400 hover:text-white transition-colors">AppCrafters</a>
           </div>
         </div>
-      </footer>
-    </>
+      </div>
+    </footer>
   );
 };
 

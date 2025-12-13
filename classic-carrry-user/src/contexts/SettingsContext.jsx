@@ -13,10 +13,11 @@ export const useSettings = () => {
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({
     appearance: {
-      siteName: 'Classic Carrry',
+      siteName: 'dKart',
+      logoType: 'text',
       tagline: 'Premium Lifestyle Products',
-      primaryColor: '#8B7355',
-      secondaryColor: '#D2C1B6',
+      primaryColor: '#2563EB',
+      secondaryColor: '#10B981',
       showNewsletter: true,
       showSocialMedia: true
     },

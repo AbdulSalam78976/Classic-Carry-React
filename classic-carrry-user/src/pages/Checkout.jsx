@@ -57,7 +57,7 @@ const Checkout = () => {
       setCart(cartManager.getCart());
       setLoading(false);
     };
-    
+
     loadCart();
     const unsubscribe = cartManager.subscribe((updatedCart) => {
       setCart(updatedCart);
@@ -88,7 +88,7 @@ const Checkout = () => {
         setHasCoupons(false);
       }
     };
-    
+
     checkCoupons();
   }, []);
 
@@ -115,7 +115,7 @@ const Checkout = () => {
     if (e) {
       e.preventDefault();
     }
-    
+
     if (!isAuthenticated) {
       showNotification('Please login to place an order', 'error');
       navigate('/login', { state: { from: location } });
@@ -166,17 +166,17 @@ const Checkout = () => {
       };
 
       const response = await orderAPI.create(orderData);
-      
+
       // Handle different response structures
       const orderNumber = response.data?.orderNumber || response.orderNumber || response.data?.order?.orderNumber;
-      
+
       if (orderNumber) {
         localStorage.setItem('lastOrderNumber', orderNumber);
       }
-      
+
       // Clear cart
       cartManager.clearCart();
-      
+
       showNotification('Order placed successfully!', 'success');
       navigate('/order-success');
     } catch (error) {
@@ -222,8 +222,8 @@ const Checkout = () => {
 
       if (response.ok && data.success) {
         setAppliedCoupon(data.data);
-        const discount = data.data.discountType === 'percentage' 
-          ? (subtotal * data.data.discountValue) / 100 
+        const discount = data.data.discountType === 'percentage'
+          ? (subtotal * data.data.discountValue) / 100
           : data.data.discountValue;
         showNotification(`Coupon applied! You saved Rs ${formatPrice(discount)}`, 'success');
       } else {
@@ -252,7 +252,7 @@ const Checkout = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <i className="fas fa-spinner fa-spin text-4xl text-[#8B7355] mb-4"></i>
+          <i className="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -268,7 +268,7 @@ const Checkout = () => {
           <p className="text-gray-600 mb-6">Add some products to your cart to checkout</p>
           <Link
             to="/"
-            className="inline-block bg-[#8B7355] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#6B5744] transition"
+            className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-dark transition"
           >
             Continue Shopping
           </Link>
@@ -282,7 +282,7 @@ const Checkout = () => {
       <div className="container mx-auto px-4">
         {/* Page Title */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#8B7355] to-[#A68A6F] rounded-full mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-light rounded-full mb-4 shadow-lg">
             <i className="fas fa-shopping-cart text-white text-2xl"></i>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Secure Checkout</h1>
@@ -309,9 +309,9 @@ const Checkout = () => {
               <div className="space-y-4">
                 {cart.map((item) => (
                   <div key={item.id} className="flex gap-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <img 
-                      src={getImageUrl(item.img)} 
-                      alt={item.name} 
+                    <img
+                      src={getImageUrl(item.img)}
+                      alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg"
                       onError={handleImageError}
                     />
@@ -323,7 +323,7 @@ const Checkout = () => {
                           {item.selectedSize && <span>Size: {item.selectedSize}</span>}
                         </div>
                       )}
-                      <p className="text-[#8B7355] font-bold mb-2">Rs {formatPrice(item.price)}</p>
+                      <p className="text-primary font-bold mb-2">Rs {formatPrice(item.price)}</p>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleQuantityChange(item.id, item.qty - 1)}
@@ -385,7 +385,7 @@ const Checkout = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <i className="fas fa-envelope text-[#8B7355]"></i>
+                    <i className="fas fa-envelope text-primary"></i>
                     Email Address *
                   </label>
                   <input
@@ -394,7 +394,7 @@ const Checkout = () => {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition bg-gray-50 focus:bg-white"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -402,7 +402,7 @@ const Checkout = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <i className="fas fa-user text-[#8B7355]"></i>
+                      <i className="fas fa-user text-primary"></i>
                       First Name *
                     </label>
                     <input
@@ -411,13 +411,13 @@ const Checkout = () => {
                       required
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition bg-gray-50 focus:bg-white"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition bg-gray-50 focus:bg-white"
                       placeholder="John"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <i className="fas fa-user text-[#8B7355]"></i>
+                      <i className="fas fa-user text-primary"></i>
                       Last Name *
                     </label>
                     <input
@@ -426,7 +426,7 @@ const Checkout = () => {
                       required
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition bg-gray-50 focus:bg-white"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition bg-gray-50 focus:bg-white"
                       placeholder="Doe"
                     />
                   </div>
@@ -434,7 +434,7 @@ const Checkout = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <i className="fas fa-phone text-[#8B7355]"></i>
+                    <i className="fas fa-phone text-primary"></i>
                     Phone Number *
                   </label>
                   <input
@@ -443,14 +443,14 @@ const Checkout = () => {
                     required
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition bg-gray-50 focus:bg-white"
                     placeholder="+92 316 092 8206"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <i className="fas fa-map-marker-alt text-[#8B7355]"></i>
+                    <i className="fas fa-map-marker-alt text-primary"></i>
                     Full Address *
                     {user && user.address?.street && (
                       <span className="ml-auto text-xs text-green-600 font-normal">
@@ -464,7 +464,7 @@ const Checkout = () => {
                     value={formData.address}
                     onChange={handleInputChange}
                     rows="3"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition resize-none bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition resize-none bg-gray-50 focus:bg-white"
                     placeholder="House #, Street, Area"
                   />
                   <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
@@ -476,7 +476,7 @@ const Checkout = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <i className="fas fa-city text-[#8B7355]"></i>
+                      <i className="fas fa-city text-primary"></i>
                       City *
                     </label>
                     <input
@@ -485,12 +485,12 @@ const Checkout = () => {
                       required
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#8B7355] focus:outline-none transition"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:outline-none transition"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <i className="fas fa-flag text-[#8B7355]"></i>
+                      <i className="fas fa-flag text-primary"></i>
                       Province *
                     </label>
                     <select
@@ -498,7 +498,7 @@ const Checkout = () => {
                       required
                       value={formData.province}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition cursor-pointer bg-gray-50 focus:bg-white"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition cursor-pointer bg-gray-50 focus:bg-white"
                     >
                       <option value="">Select Province</option>
                       <option value="punjab">Punjab</option>
@@ -514,7 +514,7 @@ const Checkout = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <i className="fas fa-mail-bulk text-[#8B7355]"></i>
+                    <i className="fas fa-mail-bulk text-primary"></i>
                     Postal Code (Optional)
                   </label>
                   <input
@@ -522,14 +522,14 @@ const Checkout = () => {
                     name="postalCode"
                     value={formData.postalCode}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition bg-gray-50 focus:bg-white"
                     placeholder="12345"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <i className="fas fa-sticky-note text-[#8B7355]"></i>
+                    <i className="fas fa-sticky-note text-primary"></i>
                     Delivery Notes (Optional)
                   </label>
                   <textarea
@@ -537,7 +537,7 @@ const Checkout = () => {
                     value={formData.deliveryNotes}
                     onChange={handleInputChange}
                     rows="2"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#8B7355] focus:outline-none transition resize-none bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-primary focus:outline-none transition resize-none bg-gray-50 focus:bg-white"
                     placeholder="Any special delivery instructions..."
                   />
                 </div>
@@ -559,7 +559,7 @@ const Checkout = () => {
               {hasCoupons && (
                 <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <i className="fas fa-tag text-[#8B7355]"></i>
+                    <i className="fas fa-tag text-primary"></i>
                     Have a Coupon Code?
                   </label>
                   {appliedCoupon ? (
@@ -582,12 +582,12 @@ const Checkout = () => {
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                         placeholder="Enter code"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#8B7355]"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
                       />
                       <button
                         onClick={handleApplyCoupon}
                         disabled={couponLoading}
-                        className="px-4 py-2 bg-[#8B7355] text-white rounded-lg hover:bg-[#6B5744] transition disabled:opacity-50"
+                        className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition disabled:opacity-50"
                       >
                         {couponLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Apply'}
                       </button>
@@ -603,7 +603,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
                   <span className="text-gray-600 flex items-center gap-2">
-                    <i className="fas fa-shipping-fast text-[#8B7355]"></i>
+                    <i className="fas fa-shipping-fast text-primary"></i>
                     Delivery Charge
                   </span>
                   <span className="font-semibold text-gray-900">
@@ -633,13 +633,13 @@ const Checkout = () => {
                 )}
                 <div className="flex justify-between items-center py-3 border-t-2 border-gray-300 bg-gray-50 rounded-lg px-4 mt-4">
                   <span className="font-bold text-lg text-gray-900">Total</span>
-                  <span className="font-bold text-xl text-[#8B7355]">Rs {formatPrice(total)}</span>
+                  <span className="font-bold text-xl text-primary">Rs {formatPrice(total)}</span>
                 </div>
               </div>
 
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <p className="text-xs text-gray-600 leading-relaxed mb-2">
-                  <i className="fas fa-info-circle text-[#8B7355] mr-2"></i>
+                  <i className="fas fa-info-circle text-primary mr-2"></i>
                   Delivery charge of {settings.general.currencySymbol} {formatPrice(settings.general.shippingFee)} applies to orders below {settings.general.currencySymbol} {formatPrice(settings.general.freeShippingThreshold)}.
                 </p>
                 <p className="text-xs text-green-700 leading-relaxed">
@@ -652,7 +652,7 @@ const Checkout = () => {
                 <Link
                   to="/login"
                   state={{ from: location }}
-                  className="w-full bg-[#8B7355] hover:bg-[#6B5744] text-white px-5 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition"
+                  className="w-full bg-primary hover:bg-primary-dark text-white px-5 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition"
                 >
                   <i className="fas fa-sign-in-alt"></i>
                   <span>Login to Place Order</span>
@@ -661,7 +661,7 @@ const Checkout = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting || cart.length === 0}
-                  className="w-full bg-[#8B7355] hover:bg-[#6B5744] text-white px-5 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-primary hover:bg-primary-dark text-white px-5 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
@@ -679,11 +679,11 @@ const Checkout = () => {
 
               <div className="mt-6 space-y-2">
                 <div className="flex items-center gap-2 text-gray-600 text-sm">
-                  <i className="fas fa-shield-alt text-[#8B7355]"></i>
+                  <i className="fas fa-shield-alt text-primary"></i>
                   <span>Secure checkout</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 text-sm">
-                  <i className="fas fa-lock text-[#8B7355]"></i>
+                  <i className="fas fa-lock text-primary"></i>
                   <span>Your information is protected</span>
                 </div>
               </div>

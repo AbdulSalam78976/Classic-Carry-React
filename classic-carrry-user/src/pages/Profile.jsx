@@ -121,7 +121,7 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#8B7355] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading your profile...</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ const Profile = () => {
               <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-6 sticky top-24">
                 {/* User Info */}
                 <div className="text-center mb-6 pb-6 border-b border-gray-200">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#8B7355] to-[#A68A6F] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <i className="fas fa-user text-white text-2xl"></i>
                   </div>
                   <h3 className="text-gray-900 font-semibold text-lg mb-1">{user?.name}</h3>
@@ -169,18 +169,16 @@ const Profile = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full text-left px-4 py-4 rounded-xl transition-all duration-300 group ${
-                        activeTab === tab.id
+                      className={`w-full text-left px-4 py-4 rounded-xl transition-all duration-300 group ${activeTab === tab.id
                           ? 'bg-gradient-to-r text-white shadow-lg transform scale-105'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-md'
-                      } ${activeTab === tab.id ? tab.color : ''}`}
+                        } ${activeTab === tab.id ? tab.color : ''}`}
                     >
                       <div className="flex items-center">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 transition-all duration-300 ${
-                          activeTab === tab.id 
-                            ? 'bg-white/20' 
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 transition-all duration-300 ${activeTab === tab.id
+                            ? 'bg-white/20'
                             : 'bg-gray-100 group-hover:bg-gray-200'
-                        }`}>
+                          }`}>
                           <i className={`fas ${tab.icon} ${activeTab === tab.id ? 'text-white' : 'text-gray-500 group-hover:text-gray-700'}`}></i>
                         </div>
                         <span className="font-medium">{tab.label}</span>
@@ -202,7 +200,7 @@ const Profile = () => {
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">Profile Information</h2>
                         <p className="text-gray-600">Update your personal details and contact information</p>
                       </div>
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#8B7355] to-[#A68A6F] rounded-xl flex items-center justify-center shadow-lg">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center shadow-lg">
                         <i className="fas fa-user-edit text-white text-lg"></i>
                       </div>
                     </div>
@@ -211,7 +209,7 @@ const Profile = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-user mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-user mr-2 text-primary"></i>
                             Full Name *
                           </label>
                           <input
@@ -220,14 +218,14 @@ const Profile = () => {
                             required
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300"
+                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300"
                             placeholder="Enter your full name"
                           />
                         </div>
 
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-envelope mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-envelope mr-2 text-primary"></i>
                             Email Address
                           </label>
                           <input
@@ -244,7 +242,7 @@ const Profile = () => {
 
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-phone mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-phone mr-2 text-primary"></i>
                             Phone Number
                           </label>
                           <input
@@ -252,7 +250,7 @@ const Profile = () => {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300"
+                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300"
                             placeholder="+92 300 1234567"
                           />
                         </div>
@@ -262,7 +260,7 @@ const Profile = () => {
                         <button
                           type="submit"
                           disabled={saving}
-                          className="bg-gradient-to-r from-[#8B7355] to-[#A68A6F] text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
+                          className="bg-gradient-to-r from-primary to-primary-light text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
                         >
                           {saving ? (
                             <span className="flex items-center gap-2">
@@ -276,7 +274,7 @@ const Profile = () => {
                             </span>
                           )}
                         </button>
-                        
+
                         <button
                           type="button"
                           onClick={() => window.location.reload()}
@@ -304,7 +302,7 @@ const Profile = () => {
 
                     {loading ? (
                       <div className="text-center py-16">
-                        <div className="w-16 h-16 border-4 border-[#8B7355] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                         <p className="text-gray-600 font-medium">Loading your orders...</p>
                       </div>
                     ) : orders.length === 0 ? (
@@ -316,9 +314,9 @@ const Profile = () => {
                         <p className="text-gray-600 mb-8 max-w-md mx-auto">
                           You haven't placed any orders yet. Start shopping to discover our premium collection.
                         </p>
-                        <Link 
-                          to="/products" 
-                          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#8B7355] to-[#A68A6F] text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                        <Link
+                          to="/products"
+                          className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary-light text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                         >
                           <i className="fas fa-shopping-cart"></i>
                           Start Shopping
@@ -327,7 +325,7 @@ const Profile = () => {
                     ) : (
                       <div className="space-y-6">
                         {orders.map((order) => (
-                          <div key={order._id} className="bg-white rounded-2xl border-2 border-gray-200 hover:border-[#8B7355] hover:shadow-xl transition-all duration-300 overflow-hidden">
+                          <div key={order._id} className="bg-white rounded-2xl border-2 border-gray-200 hover:border-primary hover:shadow-xl transition-all duration-300 overflow-hidden">
                             {/* Order Header */}
                             <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
                               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -356,7 +354,7 @@ const Profile = () => {
                             {/* Order Items */}
                             <div className="p-6">
                               <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                <i className="fas fa-box text-[#8B7355]"></i>
+                                <i className="fas fa-box text-primary"></i>
                                 Order Items ({order.items?.length || 0})
                               </h4>
                               <div className="space-y-3 mb-6">
@@ -376,7 +374,7 @@ const Profile = () => {
                                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                                     </div>
                                     <div className="text-right">
-                                      <p className="font-bold text-[#8B7355]">Rs {(item.price * item.quantity).toLocaleString()}</p>
+                                      <p className="font-bold text-primary">Rs {(item.price * item.quantity).toLocaleString()}</p>
                                       <p className="text-xs text-gray-500">Rs {item.price.toLocaleString()} each</p>
                                     </div>
                                   </div>
@@ -414,7 +412,7 @@ const Profile = () => {
                               </div>
 
                               {/* Order Summary */}
-                              <div className="bg-gradient-to-br from-[#8B7355] to-[#A68A6F] p-6 rounded-xl text-white">
+                              <div className="bg-gradient-to-br from-primary to-primary-light p-6 rounded-xl text-white">
                                 <h5 className="font-semibold mb-4 flex items-center gap-2">
                                   <i className="fas fa-receipt"></i>
                                   Order Summary
@@ -464,7 +462,7 @@ const Profile = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          <i className="fas fa-road mr-2 text-[#8B7355]"></i>
+                          <i className="fas fa-road mr-2 text-primary"></i>
                           Street Address
                         </label>
                         <input
@@ -472,7 +470,7 @@ const Profile = () => {
                           name="street"
                           value={formData.street}
                           onChange={handleChange}
-                          className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300"
+                          className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300"
                           placeholder="House #, Street name, Area"
                         />
                       </div>
@@ -480,7 +478,7 @@ const Profile = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-city mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-city mr-2 text-primary"></i>
                             City
                           </label>
                           <input
@@ -488,21 +486,21 @@ const Profile = () => {
                             name="city"
                             value={formData.city}
                             onChange={handleChange}
-                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300"
+                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300"
                             placeholder="Karachi"
                           />
                         </div>
 
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-flag mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-flag mr-2 text-primary"></i>
                             Province
                           </label>
                           <select
                             name="state"
                             value={formData.state}
                             onChange={handleChange}
-                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300 cursor-pointer"
+                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300 cursor-pointer"
                           >
                             <option value="">Select Province</option>
                             <option value="punjab">Punjab</option>
@@ -517,7 +515,7 @@ const Profile = () => {
 
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-mail-bulk mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-mail-bulk mr-2 text-primary"></i>
                             Postal Code
                           </label>
                           <input
@@ -525,14 +523,14 @@ const Profile = () => {
                             name="postalCode"
                             value={formData.postalCode}
                             onChange={handleChange}
-                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300"
+                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300"
                             placeholder="75500"
                           />
                         </div>
 
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            <i className="fas fa-globe mr-2 text-[#8B7355]"></i>
+                            <i className="fas fa-globe mr-2 text-primary"></i>
                             Country
                           </label>
                           <input
@@ -540,7 +538,7 @@ const Profile = () => {
                             name="country"
                             value={formData.country}
                             onChange={handleChange}
-                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-[#8B7355] focus:bg-white focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 focus:outline-none transition-all duration-300"
+                            className="w-full px-4 py-4 rounded-xl bg-gray-50 text-gray-900 border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none transition-all duration-300"
                           />
                         </div>
                       </div>
@@ -549,7 +547,7 @@ const Profile = () => {
                         <button
                           type="submit"
                           disabled={saving}
-                          className="bg-gradient-to-r from-[#8B7355] to-[#A68A6F] text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
+                          className="bg-gradient-to-r from-primary to-primary-light text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:transform-none disabled:hover:shadow-none"
                         >
                           {saving ? (
                             <span className="flex items-center gap-2">
@@ -563,7 +561,7 @@ const Profile = () => {
                             </span>
                           )}
                         </button>
-                        
+
                         <button
                           type="button"
                           onClick={() => window.location.reload()}

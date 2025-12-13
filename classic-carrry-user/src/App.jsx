@@ -19,6 +19,8 @@ import Profile from './pages/Profile';
 import Reviews from './pages/Reviews';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 import './index.css';
 
@@ -59,14 +61,16 @@ function FadeInObserver() {
 // Layout component to conditionally render header and footer
 function AppLayout() {
   const location = useLocation();
-  
+
   // Define routes where header and footer should be hidden
   const hideHeaderFooterRoutes = [
     '/login',
-    '/register'
+    '/register',
+    '/forgot-password',
+    '/reset-password/:token'
     // Add other routes here if needed (e.g., '/forgot-password')
   ];
-  
+
   const shouldHideHeaderFooter = hideHeaderFooterRoutes.includes(location.pathname);
 
   return (
@@ -80,6 +84,8 @@ function AppLayout() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/reviews" element={<Reviews />} />

@@ -15,7 +15,7 @@ export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({
     appearance: {
       siteName: 'Classic Carrry',
-      brandEmoji: '🛍️',
+      logoType: 'text',
       tagline: 'Premium Lifestyle Products',
       showNewsletter: true,
       showSocialMedia: true

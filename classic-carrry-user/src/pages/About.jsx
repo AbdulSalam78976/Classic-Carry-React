@@ -9,7 +9,7 @@ const About = () => {
   const [showAllFaqs, setShowAllFaqs] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [contactInfo, setContactInfo] = useState({
-    email: 'classiccarrry@gmail.com',
+    email: 'dkart@gmail.com',
     phone: '+92 316 092 8206',
     whatsapp: '+92 316 092 8206',
     address: 'Pakistan',
@@ -65,7 +65,7 @@ const About = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const response = await fetch(`${API_URL}/contacts`, {
         method: 'POST',
@@ -96,14 +96,14 @@ const About = () => {
       {/* Hero Section */}
       <section className="relative flex items-center justify-center text-white py-16 md:py-24" style={{ minHeight: '50vh' }}>
         <div className="absolute inset-0 z-0">
-          <img src="/assets/images/hero/3.webp" alt="About Classic Carrry" className="w-full h-full object-cover" />
+          <img src="/assets/images/hero/3.webp" alt="About dKart" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900/85 via-gray-900/75 to-gray-900/85"></div>
         </div>
 
         <div className="container mx-auto px-4 relative z-10 text-center">
           <div className="max-w-4xl mx-auto fade-in appear">
             <h1 className="font-display text-4xl md:text-6xl font-bold mb-4 md:mb-6" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-              About Classic Carrry
+              About dKart
             </h1>
             <p className="text-lg md:text-xl text-gray-100 opacity-95 max-w-3xl mx-auto leading-relaxed">
               Crafting premium lifestyle products that define your style and elevate your everyday experience since our inception.
@@ -120,27 +120,27 @@ const About = () => {
               <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
               <div className="space-y-6 text-gray-600 leading-relaxed">
                 <p className="text-lg">
-                  Classic Carrry was born from a simple belief: that the products you choose should be as unique and sophisticated as you are. What started as a passion project has evolved into a brand dedicated to creating premium lifestyle products that seamlessly blend timeless design with modern functionality.
+                  dKart was born from a simple belief: that the products you choose should be as unique and sophisticated as you are. What started as a passion project has evolved into a brand dedicated to creating premium lifestyle products that seamlessly blend timeless design with modern functionality.
                 </p>
                 <p>
                   Every piece in our collection is carefully crafted with attention to detail, using only the finest materials sourced from trusted suppliers. We believe that quality should never be compromised, and that's why each product undergoes rigorous quality checks before reaching our customers.
                 </p>
                 <p>
-                  From the bustling streets of urban cities to the serene landscapes of countryside adventures, classiccarrry products are designed to be your perfect companion, adapting to your lifestyle while maintaining their elegance and durability.
+                  From the bustling streets of urban cities to the serene landscapes of countryside adventures, dKart products are designed to be your perfect companion, adapting to your lifestyle while maintaining their elegance and durability.
                 </p>
               </div>
             </div>
             <div className="fade-in appear">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#8B7355] to-[#A68A6F] rounded-2xl transform rotate-3"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary-light rounded-2xl transform rotate-3"></div>
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 shadow-xl">
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[#8B7355] to-[#A68A6F] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
                       <i className="fas fa-award text-white text-3xl"></i>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Premium Quality</h3>
                     <p className="text-gray-600 leading-relaxed">
-                      We're committed to delivering exceptional quality in every product, ensuring that your classiccarrry items stand the test of time while maintaining their premium look and feel.
+                      We're committed to delivering exceptional quality in every product, ensuring that your dKart items stand the test of time while maintaining their premium look and feel.
                     </p>
                   </div>
                 </div>
@@ -169,7 +169,7 @@ const About = () => {
               { icon: 'fa-hammer', color: 'from-yellow-500 to-yellow-600', title: 'Expert Craftsmanship', desc: 'Every piece is meticulously crafted by skilled artisans who take pride in their work and attention to detail.' },
               { icon: 'fa-palette', color: 'from-pink-500 to-pink-600', title: 'Timeless Style', desc: 'Our designs transcend trends, offering classic elegance that remains relevant and stylish for years to come.' }
             ].map((value, index) => (
-              <div key={index} className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-[#8B7355] hover:shadow-lg transition-all duration-300 fade-in appear">
+              <div key={index} className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all duration-300 fade-in appear">
                 <div className={`w-16 h-16 bg-gradient-to-br ${value.color} rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg`}>
                   <i className={`fas ${value.icon} text-white text-2xl`}></i>
                 </div>
@@ -192,7 +192,7 @@ const About = () => {
               { value: '99%', label: 'Satisfaction Rate' }
             ].map((stat, index) => (
               <div key={index} className="text-center fade-in appear">
-                <div className="text-4xl md:text-5xl font-bold text-[#8B7355] mb-2">{stat.value}</div>
+                <div className="text-4xl md:text-5xl font-bold text-primary mb-2">{stat.value}</div>
                 <p className="text-gray-600 font-medium">{stat.label}</p>
               </div>
             ))}
@@ -200,7 +200,7 @@ const About = () => {
         </div>
       </section>
 
-     
+
 
       {/* FAQ Section */}
       {faqs.length > 0 && (
@@ -217,7 +217,7 @@ const About = () => {
               {faqs.map((faq) => (
                 <div
                   key={faq._id}
-                  className="bg-white rounded-xl border-2 border-gray-400 shadow-md overflow-hidden hover:shadow-lg hover:border-[#8B7355] transition"
+                  className="bg-white rounded-xl border-2 border-gray-400 shadow-md overflow-hidden hover:shadow-lg hover:border-primary transition"
                 >
                   <button
                     onClick={() => setExpandedFaq(expandedFaq === faq._id ? null : faq._id)}
@@ -241,7 +241,7 @@ const About = () => {
               <div className="text-center mt-12">
                 <button
                   onClick={() => setShowAllFaqs(!showAllFaqs)}
-                  className="inline-block bg-[#8B7355] text-white px-8 py-4 rounded-xl font-semibold hover:bg-[#6B5744] transition"
+                  className="inline-block bg-primary text-white px-8 py-4 rounded-xl font-semibold hover:bg-primary-dark transition"
                 >
                   {showAllFaqs ? 'Show Less' : 'View All FAQs'}
                 </button>
@@ -266,7 +266,7 @@ const About = () => {
               <div className="space-y-6">
                 {/* Head Office */}
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-full bg-[#8B7355] flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <i className="fas fa-map-marker-alt text-white text-xl"></i>
                   </div>
                   <div>
@@ -277,12 +277,12 @@ const About = () => {
 
                 {/* Email Us */}
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-full bg-[#8B7355] flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <i className="fas fa-envelope text-white text-xl"></i>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Email Us</h3>
-                    <a href={`mailto:${contactInfo.email}`} className="text-gray-600 hover:text-[#8B7355] transition">
+                    <a href={`mailto:${contactInfo.email}`} className="text-gray-600 hover:text-primary transition">
                       {contactInfo.email}
                     </a>
                   </div>
@@ -290,17 +290,17 @@ const About = () => {
 
                 {/* Call Us */}
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-full bg-[#8B7355] flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <i className="fas fa-phone-alt text-white text-xl"></i>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">Call Us</h3>
                     <p className="text-gray-600">
-                      Phone: <a href={`tel:${contactInfo.phone}`} className="hover:text-[#8B7355] transition">{contactInfo.phone}</a>
+                      Phone: <a href={`tel:${contactInfo.phone}`} className="hover:text-primary transition">{contactInfo.phone}</a>
                     </p>
                     {contactInfo.whatsapp && (
                       <p className="text-gray-600">
-                        WhatsApp: <a href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#8B7355] transition">{contactInfo.whatsapp}</a>
+                        WhatsApp: <a href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition">{contactInfo.whatsapp}</a>
                       </p>
                     )}
                   </div>
@@ -316,7 +316,7 @@ const About = () => {
                       href={contactInfo.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-12 h-12 rounded-full bg-[#8B7355] flex items-center justify-center text-white hover:bg-[#6B5744] transition"
+                      className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-dark transition"
                     >
                       <i className="fab fa-instagram text-xl"></i>
                     </a>
@@ -326,18 +326,18 @@ const About = () => {
                       href={contactInfo.tiktok}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-12 h-12 rounded-full bg-[#8B7355] flex items-center justify-center text-white hover:bg-[#6B5744] transition"
+                      className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-dark transition"
                     >
                       <i className="fab fa-tiktok text-xl"></i>
                     </a>
                   )}
-                
+
                   {contactInfo.whatsapp && (
                     <a
                       href={`https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-12 h-12 rounded-full bg-[#8B7355] flex items-center justify-center text-white hover:bg-[#6B5744] transition"
+                      className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-dark transition"
                     >
                       <i className="fab fa-whatsapp text-xl"></i>
                     </a>
@@ -356,8 +356,8 @@ const About = () => {
                     type="text"
                     placeholder="Name"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-[#8B7355] focus:bg-white focus:outline-none transition"
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-primary focus:bg-white focus:outline-none transition"
                     required
                   />
                 </div>
@@ -368,8 +368,8 @@ const About = () => {
                     type="email"
                     placeholder="Email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-[#8B7355] focus:bg-white focus:outline-none transition"
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-primary focus:bg-white focus:outline-none transition"
                     required
                   />
                 </div>
@@ -380,8 +380,8 @@ const About = () => {
                     type="text"
                     placeholder="Subject"
                     value={formData.subject}
-                    onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-[#8B7355] focus:bg-white focus:outline-none transition"
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-primary focus:bg-white focus:outline-none transition"
                     required
                   />
                 </div>
@@ -391,9 +391,9 @@ const About = () => {
                   <textarea
                     placeholder="Message"
                     value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows="5"
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-[#8B7355] focus:bg-white focus:outline-none transition resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-primary focus:bg-white focus:outline-none transition resize-none"
                     required
                   ></textarea>
                 </div>
@@ -401,7 +401,7 @@ const About = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#8B7355] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#6B5744] transition disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="w-full bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-dark transition disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {loading ? 'Sending...' : 'Send'}
                 </button>

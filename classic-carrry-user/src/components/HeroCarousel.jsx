@@ -65,7 +65,7 @@ const HeroCarousel = () => {
     return (
       <section className="relative h-[70vh] min-h-[500px] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#8B7355] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400 font-medium">Loading premium collection...</p>
         </div>
       </section>
@@ -73,7 +73,7 @@ const HeroCarousel = () => {
   }
 
   return (
-    <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+    <section className="relative h-[70vh] min-h-[500px] overflow-hidden -mt-16 pt-16">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -100,14 +100,14 @@ const HeroCarousel = () => {
             <div className="space-y-6 text-white">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
-                <i className="fas fa-crown text-[#8B7355] text-sm"></i>
+                <i className="fas fa-crown text-primary text-sm"></i>
                 <span className="text-sm font-semibold">Premium Collection</span>
               </div>
 
               {/* Main Heading */}
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Elevate Your
-                <span className="block text-[#8B7355]">Everyday Style</span>
+                <span className="block text-primary">Everyday Style</span>
               </h1>
 
               {/* Description */}
@@ -133,7 +133,7 @@ const HeroCarousel = () => {
             onClick={() => setCurrentSlide(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? 'bg-[#8B7355] scale-125'
+                ? 'bg-primary scale-125'
                 : 'bg-white/50 hover:bg-white/70'
             }`}
           />
