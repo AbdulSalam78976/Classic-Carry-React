@@ -13,14 +13,26 @@ const CategoryForm = () => {
     description: '',
     image: '',
     displayOrder: 1,
-    isActive: true
+    isActive: true,
+    parentCategory: ''
   });
+  const [parentCategories, setParentCategories] = useState([]);
 
   useEffect(() => {
+    fetchParentCategories();
     if (id) {
       fetchCategory();
     }
   }, [id]);
+
+  const fetchParentCategories = async () => {
+    try {
+      const response = await categoryAPI.getAll({ showAll: 'true', onlyParents: 'true' });
+      setParentCategories(response.data || []);
+    } catch (error) {
+      showNotification('Failed to fetch parent categories', 'error');
+    }
+  };
 
   const fetchCategory = async () => {
     try {
@@ -31,7 +43,8 @@ const CategoryForm = () => {
         description: category.description || '',
         image: category.image || '',
         displayOrder: category.displayOrder || 1,
-        isActive: category.isActive !== false
+        isActive: category.isActive !== false,
+        parentCategory: category.parentCategory || ''
       });
     } catch (error) {
       showNotification('Failed to fetch category', 'error');
@@ -93,7 +106,8 @@ const CategoryForm = () => {
     try {
       const categoryData = {
         ...formData,
-        displayOrder: Number(formData.displayOrder)
+        displayOrder: Number(formData.displayOrder),
+        parentCategory: formData.parentCategory || null
       };
 
       if (id) {
@@ -217,6 +231,27 @@ const CategoryForm = () => {
                 placeholder="e.g., Summer Caps"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">
+                Parent Category (Optional)
+              </label>
+              <select
+                name="parentCategory"
+                value={formData.parentCategory}
+                onChange={handleChange}
+                className="glass-input w-full px-5 py-3.5 appearance-none"
+              >
+                <option value="" className="bg-slate-800 text-gray-400">None (Main Category)</option>
+                {parentCategories.filter(cat => cat._id !== id).map(cat => (
+                  <option key={cat._id} value={cat._id} className="bg-slate-800 text-white">{cat.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-2 pl-1">
+                {formData.parentCategory ? 'This will be a subcategory' : 'This will be a main category'}
+              </p>
+            </div>
+
 
             <div>
               <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">

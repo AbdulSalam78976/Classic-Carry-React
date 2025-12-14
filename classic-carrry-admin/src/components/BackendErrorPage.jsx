@@ -36,11 +36,8 @@ const BackendErrorPage = ({ onRetry }) => {
 
       <div className="max-w-4xl w-full z-10 px-4">
         {/* Logo/Brand */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl text-[#D2C1B6] mb-2 font-logo flex items-center justify-center gap-3 drop-shadow-glow" style={{ fontFamily: 'Satisfy, cursive' }}>
-            Classic Carrry <span className="text-2xl">🛍️</span>
-          </h1>
-          <p className="text-gray-400 text-sm tracking-widest uppercase font-bold">Admin Portal Unavailable</p>
+        <div className="mb-6 flex justify-center">
+          <img src="/assets/logo.png" alt="Company Logo" className="h-12 w-auto object-contain" />
         </div>
 
         {/* Main Content Card */}

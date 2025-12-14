@@ -25,6 +25,15 @@ const productSchema = new mongoose.Schema({
   categoryName: {
     type: String
   },
+  subcategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    default: null
+  },
+  subcategoryName: {
+    type: String,
+    default: ''
+  },
   mainImage: {
     type: String,
     required: [true, 'Main product image is required']
@@ -99,7 +108,7 @@ const productSchema = new mongoose.Schema({
 });
 
 // Auto-populate categoryName before saving
-productSchema.pre('save', async function(next) {
+productSchema.pre('save', async function (next) {
   if (this.isModified('category')) {
     try {
       const Category = mongoose.model('Category');
@@ -111,11 +120,27 @@ productSchema.pre('save', async function(next) {
       console.error('Error populating category name:', error);
     }
   }
+
+  // Auto-populate subcategoryName
+  if (this.isModified('subcategory') && this.subcategory) {
+    try {
+      const Category = mongoose.model('Category');
+      const subcategory = await Category.findById(this.subcategory);
+      if (subcategory) {
+        this.subcategoryName = subcategory.name;
+      }
+    } catch (error) {
+      console.error('Error populating subcategory name:', error);
+    }
+  } else if (this.isModified('subcategory') && !this.subcategory) {
+    this.subcategoryName = '';
+  }
+
   next();
 });
 
 // Auto-populate categoryName before findOneAndUpdate
-productSchema.pre('findOneAndUpdate', async function(next) {
+productSchema.pre('findOneAndUpdate', async function (next) {
   const update = this.getUpdate();
   if (update.category || update.$set?.category) {
     try {
@@ -133,6 +158,33 @@ productSchema.pre('findOneAndUpdate', async function(next) {
       console.error('Error populating category name in update:', error);
     }
   }
+
+  // Auto-populate subcategoryName
+  if (update.subcategory || update.$set?.subcategory) {
+    try {
+      const Category = mongoose.model('Category');
+      const subcategoryId = update.subcategory || update.$set?.subcategory;
+      if (subcategoryId) {
+        const subcategory = await Category.findById(subcategoryId);
+        if (subcategory) {
+          if (update.$set) {
+            update.$set.subcategoryName = subcategory.name;
+          } else {
+            update.subcategoryName = subcategory.name;
+          }
+        }
+      } else {
+        if (update.$set) {
+          update.$set.subcategoryName = '';
+        } else {
+          update.subcategoryName = '';
+        }
+      }
+    } catch (error) {
+      console.error('Error populating subcategory name in update:', error);
+    }
+  }
+
   next();
 });
 

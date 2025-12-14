@@ -12,6 +12,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const profileRef = useRef(null);
   const location = useLocation();
@@ -40,12 +41,19 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Fetch all active categories
+  // Fetch all active categories and subcategories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await categoryAPI.getAll();
-        setCategories(response.data || []);
+        const allCategories = response.data || [];
+
+        // Separate parent categories and subcategories
+        const parents = allCategories.filter(cat => !cat.parentCategory);
+        const subs = allCategories.filter(cat => cat.parentCategory);
+
+        setCategories(parents);
+        setSubcategories(subs);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -75,22 +83,22 @@ const Header = () => {
   // NavLink active class function
   const getNavLinkClass = ({ isActive }) => {
     return `px-4 py-2 font-medium transition-all rounded-full ${isActive
-        ? 'text-primary bg-primary/5 font-semibold'
-        : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+      ? 'text-primary bg-primary/5 font-semibold'
+      : 'text-gray-600 hover:text-primary hover:bg-gray-50'
       }`;
   };
 
   const getCategoryNavLinkClass = ({ isActive }) => {
     return `category-nav-item px-3 py-2 text-sm font-medium transition-all rounded-full ${isActive
-        ? 'text-primary bg-primary/10 font-semibold'
-        : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+      ? 'text-primary bg-primary/10 font-semibold'
+      : 'text-gray-600 hover:text-primary hover:bg-gray-50'
       }`;
   };
 
   const getMobileNavLinkClass = ({ isActive }) => {
     return `mobile-category-item block px-4 py-3 text-sm font-medium transition-all rounded-xl ${isActive
-        ? 'text-primary bg-primary/5 font-semibold'
-        : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+      ? 'text-primary bg-primary/5 font-semibold'
+      : 'text-gray-600 hover:text-primary hover:bg-gray-50'
       }`;
   };
 
@@ -98,8 +106,8 @@ const Header = () => {
     <>
       {/* Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 py-2'
-          : 'bg-white border-b border-gray-100 py-4'
+        ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 py-2'
+        : 'bg-white border-b border-gray-100 py-4'
         }`}>
         <nav className="container mx-auto px-4">
           <div className="flex items-center justify-between h-14">
@@ -116,16 +124,51 @@ const Header = () => {
                 Home
               </NavLink>
 
-              {/* Show first 4 categories directly */}
-              {categories.slice(0, 4).map((category) => (
-                <NavLink
-                  key={category._id}
-                  to={`/category/${category.slug}`}
-                  className={getCategoryNavLinkClass}
-                >
-                  {category.name}
-                </NavLink>
-              ))}
+              {/* Show first 4 categories with subcategory dropdowns */}
+              {categories.slice(0, 4).map((category) => {
+                const categorySubs = subcategories.filter(sub => sub.parentCategory === category._id);
+
+                if (categorySubs.length > 0) {
+                  return (
+                    <div key={category._id} className="relative group">
+                      <NavLink
+                        to={`/category/${category.slug}`}
+                        className={getCategoryNavLinkClass}
+                      >
+                        {category.name}
+                        <i className="fas fa-chevron-down text-[8px] ml-1 group-hover:rotate-180 transition-transform duration-200"></i>
+                      </NavLink>
+                      <div className="header-dropdown absolute top-full left-0 mt-2 w-48 rounded-2xl shadow-xl border border-gray-100 bg-white py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 transform translate-y-2 group-hover:translate-y-0 p-1">
+                        {categorySubs.map((subcat) => (
+                          <NavLink
+                            key={subcat._id}
+                            to={`/category/${subcat.slug}`}
+                            className={({ isActive }) =>
+                              `block px-3 py-2.5 text-sm transition-all rounded-xl ${isActive
+                                ? 'text-primary bg-primary/5 font-medium'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
+                              }`
+                            }
+                          >
+                            <i className="fas fa-arrow-right text-[10px] mr-2 opacity-40"></i>
+                            {subcat.name}
+                          </NavLink>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <NavLink
+                      key={category._id}
+                      to={`/category/${category.slug}`}
+                      className={getCategoryNavLinkClass}
+                    >
+                      {category.name}
+                    </NavLink>
+                  );
+                }
+              })}
 
               {/* More dropdown for additional categories */}
               {categories.length > 4 && (

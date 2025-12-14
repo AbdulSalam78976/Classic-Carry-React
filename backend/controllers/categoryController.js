@@ -7,7 +7,7 @@ import { deleteFromCloudinary } from '../config/cloudinary.js';
 // @access  Public
 export const getCategories = async (req, res) => {
   try {
-    const { productType, isFeatured, showAll } = req.query;
+    const { productType, isFeatured, showAll, parentCategory, onlyParents } = req.query;
     const query = {};
 
     // Only filter by isActive if showAll is not true (for admin panel)
@@ -18,8 +18,18 @@ export const getCategories = async (req, res) => {
     if (productType) query.productType = productType;
     if (isFeatured === 'true') query.isFeatured = true;
 
+    // Filter by parent category (get subcategories of a specific category)
+    if (parentCategory) {
+      query.parentCategory = parentCategory;
+    }
+
+    // Get only parent categories (categories without a parent)
+    if (onlyParents === 'true') {
+      query.parentCategory = null;
+    }
+
     const categories = await Category.find(query).sort({ displayOrder: 1, name: 1 });
-    
+
     res.json({
       success: true,
       count: categories.length,
@@ -40,7 +50,7 @@ export const getCategoryBySlug = async (req, res) => {
   try {
     const { identifier } = req.params;
     const searchParam = identifier;
-    
+
     // Try to find by ID first (for admin panel), then by slug (for frontend)
     let category;
     if (searchParam.match(/^[0-9a-fA-F]{24}$/)) {
@@ -48,9 +58,9 @@ export const getCategoryBySlug = async (req, res) => {
       category = await Category.findById(searchParam);
     } else {
       // It's a slug
-      category = await Category.findOne({ 
+      category = await Category.findOne({
         slug: searchParam,
-        isActive: true 
+        isActive: true
       });
     }
 
@@ -87,12 +97,12 @@ export const getCategoryBySlug = async (req, res) => {
 // @access  Private/Admin
 export const createCategory = async (req, res) => {
   try {
-    console.log('Creating category with data:', { 
-      name: req.body.name, 
+    console.log('Creating category with data:', {
+      name: req.body.name,
       hasImage: !!req.body.image,
-      imageLength: req.body.image?.length 
+      imageLength: req.body.image?.length
     });
-    
+
     const category = await Category.create(req.body);
 
     res.status(201).json({
@@ -158,9 +168,19 @@ export const deleteCategory = async (req, res) => {
       });
     }
 
+    // Check if category has subcategories
+    const subcategoriesCount = await Category.countDocuments({ parentCategory: category._id });
+
+    if (subcategoriesCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete category. It has ${subcategoriesCount} subcategories. Please delete subcategories first.`
+      });
+    }
+
     // Check if category has products
     const productsCount = await Product.countDocuments({ category: category._id });
-    
+
     if (productsCount > 0) {
       return res.status(400).json({
         success: false,
@@ -190,9 +210,9 @@ export const deleteCategory = async (req, res) => {
 // @access  Public
 export const getFeaturedCategoriesWithProducts = async (req, res) => {
   try {
-    const categories = await Category.find({ 
+    const categories = await Category.find({
       isActive: true,
-      isFeatured: true 
+      isFeatured: true
     }).sort({ displayOrder: 1 });
 
     const categoriesWithProducts = await Promise.all(
@@ -202,8 +222,8 @@ export const getFeaturedCategoriesWithProducts = async (req, res) => {
           category: category._id,
           isActive: true
         })
-        .limit(4)
-        .sort({ isHot: -1, isFeatured: -1, createdAt: -1 });
+          .limit(4)
+          .sort({ isHot: -1, isFeatured: -1, createdAt: -1 });
 
         return {
           ...category.toObject(),

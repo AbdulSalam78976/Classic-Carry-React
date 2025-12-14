@@ -12,12 +12,14 @@ const ProductForm = () => {
   const [uploadingMainImage, setUploadingMainImage] = useState(false);
   const [uploadingAdditionalImages, setUploadingAdditionalImages] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
     price: '',
     stock: '',
     category: '',
+    subcategory: '',
     mainImage: '',
     images: [],
     description: '',
@@ -51,10 +53,23 @@ const ProductForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await categoryAPI.getAll({ showAll: 'true' });
+      const response = await categoryAPI.getAll({ showAll: 'true', onlyParents: 'true' });
       setCategories(response.data || []);
     } catch (error) {
       showNotification('Failed to fetch categories', 'error');
+    }
+  };
+
+  const fetchSubcategories = async (parentId) => {
+    if (!parentId) {
+      setSubcategories([]);
+      return;
+    }
+    try {
+      const response = await categoryAPI.getAll({ showAll: 'true', parentCategory: parentId });
+      setSubcategories(response.data || []);
+    } catch (error) {
+      showNotification('Failed to fetch subcategories', 'error');
     }
   };
 
@@ -67,12 +82,17 @@ const ProductForm = () => {
         ? product.category._id
         : product.category;
 
+      const subcategoryId = typeof product.subcategory === 'object'
+        ? product.subcategory?._id
+        : product.subcategory;
+
       setFormData({
         id: product.id || '',
         name: product.name,
         price: product.price,
         stock: product.stock,
         category: categoryId,
+        subcategory: subcategoryId || '',
         mainImage: product.mainImage,
         images: product.images || [],
         description: product.description || '',
@@ -82,6 +102,11 @@ const ProductForm = () => {
         isHot: product.isHot || false,
         isActive: product.isActive !== false
       });
+
+      // Fetch subcategories if category is set
+      if (categoryId) {
+        await fetchSubcategories(categoryId);
+      }
     } catch (error) {
       showNotification('Failed to fetch product', 'error');
     }
@@ -95,6 +120,16 @@ const ProductForm = () => {
       ...formData,
       [name]: newValue
     });
+
+    // When category changes, fetch subcategories and reset subcategory selection
+    if (name === 'category') {
+      fetchSubcategories(value);
+      setFormData(prev => ({
+        ...prev,
+        category: value,
+        subcategory: ''
+      }));
+    }
   };
 
   const handleMainImageChange = async (e) => {
@@ -200,6 +235,7 @@ const ProductForm = () => {
         price: Number(formData.price),
         stock: Number(formData.stock),
         category: formData.category,
+        subcategory: formData.subcategory || null,
         mainImage: formData.mainImage,
         images: formData.images,
         description: formData.description,
@@ -405,6 +441,22 @@ const ProductForm = () => {
                   ))}
                 </select>
               </div>
+              {formData.category && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-300 mb-2">Subcategory</label>
+                  <select
+                    name="subcategory"
+                    value={formData.subcategory}
+                    onChange={handleChange}
+                    className="glass-input w-full px-5 py-3.5 appearance-none"
+                  >
+                    <option value="" className="bg-slate-800 text-gray-400">None (Optional)</option>
+                    {subcategories.map(subcat => (
+                      <option key={subcat._id} value={subcat._id} className="bg-slate-800 text-white">{subcat.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-bold text-gray-300 mb-2">Price (Rs) *</label>
                 <div className="relative">
