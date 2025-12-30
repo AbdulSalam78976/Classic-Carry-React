@@ -1,23 +1,53 @@
-import api from './api';
+import { API_URL } from '../config/api.js';
+
+// Helper function for API calls
+const apiCall = async (endpoint, options = {}) => {
+  const token = localStorage.getItem('adminToken');
+  
+  const config = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
+  };
+
+  const response = await fetch(`${API_URL}${endpoint}`, config);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Something went wrong');
+  }
+
+  return data;
+};
 
 export const reviewAPI = {
   // Admin: Get all reviews
-  getAllReviews: (params = {}) => {
-    return api.get('/reviews/admin/all', { params });
+  getAllReviews: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiCall(`/reviews/admin/all${query ? `?${query}` : ''}`);
   },
 
   // Admin: Toggle review approval
-  toggleReviewApproval: (reviewId, data) => {
-    return api.put(`/reviews/admin/${reviewId}/approval`, data);
+  toggleReviewApproval: async (reviewId, data) => {
+    return apiCall(`/reviews/admin/${reviewId}/approval`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
 
   // Admin: Delete review
-  adminDeleteReview: (reviewId) => {
-    return api.delete(`/reviews/admin/${reviewId}`);
+  adminDeleteReview: async (reviewId) => {
+    return apiCall(`/reviews/admin/${reviewId}`, {
+      method: 'DELETE',
+    });
   },
 
   // Get reviews for a product (public)
-  getProductReviews: (productId, params = {}) => {
-    return api.get(`/reviews/product/${productId}`, { params });
+  getProductReviews: async (productId, params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiCall(`/reviews/product/${productId}${query ? `?${query}` : ''}`);
   }
 };

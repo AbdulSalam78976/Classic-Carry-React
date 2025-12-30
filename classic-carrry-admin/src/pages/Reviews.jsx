@@ -20,8 +20,8 @@ const Reviews = () => {
         limit: 20,
         status: filter
       });
-      setReviews(response.data.reviews);
-      setTotalPages(response.data.pagination.totalPages);
+      setReviews(response.reviews);
+      setTotalPages(response.pagination.totalPages);
     } catch (error) {
       console.error('Error fetching reviews:', error);
     } finally {

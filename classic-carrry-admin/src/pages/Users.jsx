@@ -197,7 +197,7 @@ const Users = () => {
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-end gap-2 text-right">
                         <button
-                          onClick={() => openUserModal(user)}
+                          onClick={() => handleViewUser(user)}
                           className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition-all flex items-center justify-center border border-blue-500/20"
                           title="View Details"
                         >

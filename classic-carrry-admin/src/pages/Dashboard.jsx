@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productAPI, orderAPI, userAPI } from '../services/api';
-import { useSettings } from '../contexts/SettingsContext';
+import { reviewAPI } from '../services/reviewAPI';
 
 const Dashboard = () => {
-  const { settings } = useSettings();
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -19,6 +18,7 @@ const Dashboard = () => {
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [salesData, setSalesData] = useState([]);
+  const [reviewStats, setReviewStats] = useState({ total: 0, pending: 0, approved: 0, avgRating: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,15 +27,17 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [productsRes, ordersRes, usersRes] = await Promise.all([
+      const [productsRes, ordersRes, usersRes, reviewsRes] = await Promise.all([
         productAPI.getAll(),
         orderAPI.getAll(),
-        userAPI.getAll()
+        userAPI.getAll(),
+        reviewAPI.getAllReviews({ limit: 100 })
       ]);
 
       const products = productsRes.data || [];
       const orders = ordersRes.data || [];
       const users = usersRes.data || [];
+      const reviews = reviewsRes.reviews || [];
 
       // Calculate stats
       const pendingOrders = orders.filter(o => o.status === 'pending').length;
@@ -95,18 +97,38 @@ const Dashboard = () => {
       const last7Days = Array.from({ length: 7 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - (6 - i));
-        return date.toISOString().split('T')[0];
+        date.setHours(0, 0, 0, 0);
+        return date;
       });
 
-      const salesByDay = last7Days.map(date => {
-        const dayOrders = orders.filter(o => o.createdAt.startsWith(date));
+      const salesByDay = last7Days.map(targetDate => {
+        const dateStr = targetDate.toISOString().split('T')[0];
+        const dayOrders = orders.filter(o => {
+          const orderDate = new Date(o.createdAt).toISOString().split('T')[0];
+          return orderDate === dateStr;
+        });
         return {
-          date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
+          date: targetDate.toLocaleDateString('en-US', { weekday: 'short' }),
           revenue: dayOrders.reduce((sum, order) => sum + (order.pricing?.total || 0), 0),
           orders: dayOrders.length
         };
       });
       setSalesData(salesByDay);
+
+      // Review stats
+      const totalReviews = reviews.length;
+      const pendingReviews = reviews.filter(r => !r.isApproved).length;
+      const approvedReviews = reviews.filter(r => r.isApproved).length;
+      const avgRating = totalReviews > 0 
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews).toFixed(1)
+        : 0;
+
+      setReviewStats({
+        total: totalReviews,
+        pending: pendingReviews,
+        approved: approvedReviews,
+        avgRating: parseFloat(avgRating)
+      });
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -183,6 +205,77 @@ const Dashboard = () => {
         />
       </div>
 
+      {/* Review Analytics */}
+      <div className="glass-panel rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-white">Review Analytics</h2>
+            <p className="text-sm text-gray-400">Customer feedback overview</p>
+          </div>
+          <Link to="/reviews" className="text-primary hover:text-white text-sm flex items-center gap-1 transition-colors">
+            Manage Reviews <i className="fas fa-arrow-right"></i>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="glass-card p-5 rounded-xl border-white/5 bg-gradient-to-br from-white/5 to-transparent">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <i className="fas fa-star text-blue-400"></i>
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase">Total</span>
+            </div>
+            <p className="text-3xl font-bold text-white">{reviewStats.total}</p>
+            <p className="text-xs text-gray-400 mt-1">Reviews</p>
+          </div>
+
+          <div className="glass-card p-5 rounded-xl border-white/5 bg-gradient-to-br from-white/5 to-transparent">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                <i className="fas fa-clock text-yellow-400"></i>
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase">Pending</span>
+            </div>
+            <p className="text-3xl font-bold text-yellow-400">{reviewStats.pending}</p>
+            <p className="text-xs text-gray-400 mt-1">Awaiting approval</p>
+          </div>
+
+          <div className="glass-card p-5 rounded-xl border-white/5 bg-gradient-to-br from-white/5 to-transparent">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                <i className="fas fa-check-circle text-green-400"></i>
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase">Approved</span>
+            </div>
+            <p className="text-3xl font-bold text-green-400">{reviewStats.approved}</p>
+            <p className="text-xs text-gray-400 mt-1">Live reviews</p>
+          </div>
+
+          <div className="glass-card p-5 rounded-xl border-white/5 bg-gradient-to-br from-white/5 to-transparent">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <i className="fas fa-chart-line text-purple-400"></i>
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase">Average</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <p className="text-3xl font-bold text-white">{reviewStats.avgRating}</p>
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <i
+                    key={star}
+                    className={`fas fa-star text-xs ${
+                      star <= Math.round(reviewStats.avgRating) ? 'text-yellow-400' : 'text-gray-600'
+                    }`}
+                  ></i>
+                ))}
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">Rating</p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Chart Section */}
         <div className="lg:col-span-2 glass-panel rounded-2xl p-6">
@@ -197,21 +290,41 @@ const Dashboard = () => {
           </div>
 
           <div className="h-64 flex items-end justify-between gap-2 px-2">
-            {salesData.map((day, index) => (
-              <div key={index} className="flex flex-col items-center gap-2 flex-1 group">
-                <div className="w-full relative h-48 flex items-end justify-center">
-                  <div
-                    style={{ height: `${Math.max((day.revenue / Math.max(...salesData.map(d => d.revenue || 1))) * 100, 5)}%` }}
-                    className="w-full max-w-[40px] bg-gradient-to-t from-primary/20 to-primary rounded-t-lg group-hover:from-primary/40 group-hover:to-primary-light transition-all duration-300 relative"
-                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 z-10">
-                      Rs {day.revenue.toLocaleString()}
+            {salesData.length > 0 ? (
+              salesData.map((day, index) => {
+                const maxRevenue = Math.max(...salesData.map(d => d.revenue), 100);
+                const heightPercent = day.revenue > 0 
+                  ? Math.max((day.revenue / maxRevenue) * 100, 5)
+                  : 5;
+                
+                return (
+                  <div key={index} className="flex flex-col items-center gap-2 flex-1 group">
+                    <div className="w-full relative h-48 flex items-end justify-center">
+                      <div
+                        style={{ height: `${heightPercent}%` }}
+                        className={`w-full max-w-[40px] rounded-t-lg transition-all duration-300 relative ${
+                          day.revenue > 0 
+                            ? 'bg-gradient-to-t from-blue-600 to-blue-400 group-hover:from-blue-500 group-hover:to-blue-300 shadow-lg shadow-blue-500/50' 
+                            : 'bg-gradient-to-t from-gray-600 to-gray-500 group-hover:from-gray-500 group-hover:to-gray-400'
+                        }`}
+                      >
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10 z-10">
+                          Rs {day.revenue.toLocaleString()}
+                        </div>
+                      </div>
                     </div>
+                    <span className="text-xs text-gray-500 font-medium">{day.date}</span>
                   </div>
+                );
+              })
+            ) : (
+              <div className="w-full h-48 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <i className="fas fa-chart-bar text-4xl mb-2 opacity-20"></i>
+                  <p className="text-sm">Loading sales data...</p>
                 </div>
-                <span className="text-xs text-gray-500 font-medium">{day.date}</span>
               </div>
-            ))}
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/5">
